@@ -1,0 +1,232 @@
+/* === AUTHENTICATION SCREEN STYLES === */
+
+/* Color Variables matching app theme */
+.auth-container {
+  --primary: #008080;   /* Teal */
+  --secondary: #ffffff; /* White */
+  --accent: #003366;    /* Navy Blue */
+  --background: #f5f7fa;/* Light Gray */
+  --highlight: #2ecc71; /* Emerald Green */
+  --error: #e74c3c;     /* Red for errors */
+  --success: #27ae60;   /* Green for success */
+}
+
+/* Desktop Styles */
+.auth-container {
+  max-width: 420px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background: var(--secondary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid rgba(0, 128, 128, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--highlight));
+}
+
+.auth-container h2 {
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: -0.025em;
+}
+
+.auth-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.auth-container input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+  box-sizing: border-box;
+}
+
+.auth-container input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
+}
+
+.auth-container input::placeholder {
+  color: #8892a0;
+}
+
+.role-select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fafbfc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary), var(--highlight));
+  color: var(--secondary);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 128, 128, 0.3);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+.toggle-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.toggle-text span {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.toggle-text span:hover {
+  color: var(--highlight);
+}
+
+.auth-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.auth-message.error {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.auth-message.success {
+  background: rgba(39, 174, 96, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.logout-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--error);
+  border: 2px solid var(--error);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: var(--error);
+  color: var(--secondary);
+}
+
+/* === MOBILE RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 1rem;
+    padding: 2rem 1.5rem;
+    max-width: none;
+    border-radius: 12px;
+  }
+
+  .auth-container h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .auth-container input,
+  .role-select {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .auth-button {
+    padding: 1.1rem;
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    margin: 0.5rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .auth-container input,
+  .role-select {
+    padding: 0.875rem;
+  }
+
+  .auth-button {
+    padding: 1rem;
+  }
+
+  .toggle-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* === LOADING STATE === */
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

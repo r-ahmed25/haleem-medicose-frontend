@@ -1,0 +1,104 @@
+:root {
+  --primary: #008080;   /* Teal */
+  --secondary: #ffffff; /* White */
+  --accent: #003366;    /* Navy Blue */
+  --background: #f5f7fa;/* Light Gray */
+  --highlight: #2ecc71; /* Emerald Green */
+}
+/* Container */
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+
+/* Generic page button */
+.page-btn {
+  background: transparent;
+  border: 2px solid rgba(0, 0, 0, 0.06);
+  color: var(--accent);         /* navy text */
+  padding: 8px 12px;
+  border-radius: 10px;
+  min-width: 44px;
+  min-height: 36px;
+  cursor: pointer;              /* pointer cursor */
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-clip: padding-box;
+}
+
+/* Prev/Next */
+.page-btn.prev-next {
+  padding: 8px 14px;
+}
+
+/* Hover effect */
+.page-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.10);
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* Disabled */
+.page-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Active page style */
+.page-btn.active,
+.page-btn[aria-current="page"] {
+  background: linear-gradient(180deg, var(--highlight) 0%, #28b96b 100%);
+  color: var(--secondary);      /* white */
+  border-color: var(--highlight);
+  box-shadow: 0 8px 20px rgba(46,204,113,0.18);
+}
+
+/* Small-screen tweaks */
+@media (max-width: 520px) {
+  .page-btn {
+    min-width: 36px;
+    padding: 6px 8px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+  .page-btn.prev-next {
+    padding: 6px 10px;
+  }
+}
+
+/* Focus state (keyboard accessible) */
+.page-btn:focus {
+  outline: 3px solid rgba(0, 128, 128, 0.16);
+  outline-offset: 3px;
+}
+
+/* "Showing X-Y of Z" text */
+.products .showing-info {
+  color: #444;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* Optional: subtle transition for page-number changes */
+.pagination .page-btn {
+  will-change: transform;
+}
+
+/* Accessibility: larger clickable area on touch */
+@media (pointer: coarse) {
+  .page-btn {
+    padding: 10px 14px;
+    min-width: 48px;
+    min-height: 44px;
+  }
+}

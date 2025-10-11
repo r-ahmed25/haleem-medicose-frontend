@@ -1,0 +1,108 @@
+/* NavBar.css - user-placeholder toggles menu on all screens
+   Uses CSS variables: --primary, --secondary, --primary-dark, --card, etc.
+*/
+
+.navbar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--primary), rgba(0,0,0,0.02));
+  color: var(--secondary);
+  padding: 12px 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 2000;
+  box-sizing: border-box;
+}
+
+/* Top row */
+.nav-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* left group */
+.nav-left-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* user placeholder round icon */
+.user-placeholder {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  color: var(--secondary);
+  border: 2px solid rgba(255,255,255,0.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.user-placeholder:hover {
+  transform: translateY(-3px);
+  background: rgba(255,255,255,0.08);
+}
+
+/* deliver to */
+.deliver-to { display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; }
+.deliver-to .deliver-label { font-size: 0.85rem; color: rgba(255,255,255,0.85); font-weight: 700; }
+.deliver-to .deliver-address { font-size: 0.95rem; color: rgba(255,255,255,0.95); display:flex; gap:6px; white-space:nowrap; }
+
+/* right top */
+.nav-right-top { display:flex; align-items:center; gap:8px; }
+
+.icon-btn { background: rgba(255,255,255,0.04); font-size: 1.4rem; border: none; padding: 10px; border-radius: 12px; color: var(--secondary); cursor: pointer; transition: transform .12s ease, background .12s ease; }
+.icon-btn:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
+
+/* Search row */
+.nav-search-row { margin-top: 12px; display:flex; align-items:center; justify-content:center; }
+.search-form {
+  width:100%; max-width: 920px; display:flex; align-items:center; gap:8px;
+  background: var(--secondary); padding:8px 10px; border-radius:40px; box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+}
+.search-icon-left, .camera-icon { border:none; background:transparent; color: rgba(0,0,0,0.6); padding:6px; font-size:1.05rem; display:inline-flex; align-items:center; justify-content:center; }
+.search-input { flex:1 1 auto; border:none; outline:none; padding:10px 8px; font-size:1rem; color:#222; background:transparent; }
+
+/* menu drawer */
+.mobile-menu-drawer {
+  position: fixed; top: 0; left: -440px; width: 340px; height: 100vh;
+  background: linear-gradient(180deg, var(--primary-dark, #006), var(--primary));
+  color: var(--secondary); padding:22px; z-index:2200; box-shadow:8px 0 36px rgba(0,0,0,0.28); transition:left .28s cubic-bezier(.2,.9,.2,1); overflow-y:auto;
+}
+.mobile-menu-drawer.open { left: 0; }
+.menu-header { display:flex; justify-content:flex-end; }
+.close-btn { background:transparent; border:none; color:var(--secondary); font-size:1.25rem; cursor:pointer; padding:6px; }
+.mobile-menu-list { list-style:none; padding:10px 0; margin:10px 0 0 0; }
+.mobile-menu-list li { padding:10px 6px; }
+.mobile-menu-list li a { color:var(--secondary); text-decoration:none; font-size:1rem; display:block; padding:8px; border-radius:8px; }
+.mobile-menu-list li a:hover { background: rgba(255,255,255,0.04); }
+
+/* backdrop */
+.menu-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.36); z-index:2100; }
+
+/* Responsive adjustments */
+@media (max-width: 520px) {
+  .nav-top { align-items:center; }
+  .user-placeholder { width:52px; height:52px; font-size:1.1rem; }
+  .deliver-to .deliver-label { font-size:0.8rem; }
+  .deliver-to .deliver-address { font-size:0.9rem; }
+  .search-form { padding:10px 12px; border-radius:32px; }
+  .camera-icon { padding:8px; font-size:1.15rem; }
+}
+
+/* Desktop */
+@media (min-width: 521px) {
+  .search-form { max-width: 900px; }
+}
+
+/* Accessibility focus ring */
+.user-placeholder:focus, .icon-btn:focus, .search-input:focus, .close-btn:focus {
+  outline: 3px solid rgba(46,204,113,0.14);
+  outline-offset: 2px;
+  border-radius: 8px;
+}

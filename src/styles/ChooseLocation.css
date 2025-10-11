@@ -1,0 +1,121 @@
+/* Page wrapper */
+.choose-location-page {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: var(--background, #f5f7fa); /* light backdrop */
+  min-height: 100vh;
+}
+
+/* Center card */
+.choose-card {
+  width: 100%;
+  max-width: 600px;   /* narrower for readability */
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* Form grid */
+.location-form {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* Each field */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.col-12 {
+  grid-column: span 12;
+}
+
+.form-group.col-6 {
+  grid-column: span 6;
+}
+
+/* Labels */
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151; /* slate gray */
+}
+
+/* Inputs */
+.form-group input {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--primary, #008080);
+  box-shadow: 0 0 0 3px rgba(0,128,128,0.15);
+}
+
+/* Divider */
+.hr {
+  grid-column: span 12;
+  height: 1px;
+  background: rgba(0,0,0,0.1);
+  margin: 8px 0;
+}
+
+/* Actions */
+.form-actions {
+  grid-column: span 12;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--primary, #008080);
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #006666;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(0,0,0,0.2);
+  color: #374151;
+}
+
+.btn-ghost:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .form-group.col-6 {
+    grid-column: span 12;
+  }
+
+  .choose-card {
+    padding: 20px;
+  }
+}

@@ -1,0 +1,383 @@
+@import "tailwindcss";
+
+.hero {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  color: var(--secondary);
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.hero-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.primary-btn {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.primary-btn:hover {
+  background: var(--highlight);
+  color: var(--secondary);
+}
+
+.secondary-btn {
+  border: 2px solid var(--secondary);
+  color: var(--secondary);
+}
+
+.secondary-btn:hover {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.categories {
+  padding: 2rem;
+  text-align: center;
+}
+
+.categories h2 {
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.category-btn {
+  background: var(--secondary);
+  border: 2px solid var(--primary);
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+
+.category-btn:hover,
+.category-btn.active {
+  background: var(--highlight);
+  color: var(--secondary);
+  border-color: var(--highlight);
+}
+
+/* === FEATURED PRODUCTS === */
+
+
+/* === PRODUCTS === */
+.products {
+  padding: 2rem;
+}
+
+.products h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--accent);
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--secondary);
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.product-card h3 {
+  color: var(--accent);
+}
+
+.product-card button {
+  margin-top: 1rem;
+  background: var(--highlight);
+  color: var(--secondary);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--accent);
+  grid-column: 1 / -1;
+}
+
+.product-details {
+  padding: 2rem;
+  text-align: center;
+}
+
+.details-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.buy-btn {
+  background: var(--highlight);
+  color: var(--secondary);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.buy-btn:hover {
+  background: #0080ff;
+}
+
+.back-btn {
+  background: var(--secondary);
+  border: 2px solid var(--primary);
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--primary);
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: var(--highlight);
+  color: var(--secondary);
+}
+
+/* === FOOTER === */
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: var(--accent);
+  color: var(--secondary);
+  margin-top: 2rem;
+}
+
+
+/*choose location
+
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .search-box {
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .category-list {
+    flex-direction: column;
+  }
+
+  .featured-list, .product-list {
+    grid-template-columns: 1fr;
+  }
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: -250px; /* fully hidden initially */
+    height: 100%;
+    width: 250px;
+    background: var(--primary);
+    flex-direction: column;
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+  }
+
+  .nav-links.open {
+    right: 0; /* visible when open */
+  }
+
+  .nav-links li a {
+    font-size: 1.2rem;
+  }
+
+  .nav-right {
+    width: 100%;
+    margin-top: 0.5rem;
+    justify-content: space-between;
+    
+  }
+}
+
+/* Mobile Menu (drawer from left) */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -280px; /* fully hidden initially */
+  width: 250px;
+  height: 100%;
+  background: var(--primary);
+  color: var(--secondary);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  transition: left 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.mobile-menu.open {
+  left: 0; /* slides in */
+}
+
+.mobile-menu .menu-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.close-btn {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.mobile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.mobile-menu ul li a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.mobile-menu ul li a:hover {
+  color: var(--highlight);
+}
+
+/* Hamburger icon */
+.hamburger {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Responsive: only show mobile menu for screens <=768px */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    display: none; /* hide desktop links */
+  }
+
+  .nav-right {
+    width: 100%;
+    margin-top: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Logo centered on top */
+  .nav-left {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Search full width below logo */
+  .search-form {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.3rem;
+  }
+  .search-box {
+    width: 100%;
+  }
+
+  /* Cart + Hamburger cramped together */
+  .cart-icon, .hamburger {
+    font-size: 1.4rem;
+  }
+  .nav-right {
+    width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}

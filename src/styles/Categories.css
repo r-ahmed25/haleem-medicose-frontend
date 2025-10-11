@@ -1,0 +1,112 @@
+.categories {
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--background);
+}
+
+.categories-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Desktop Pills with arrows */
+.desktop-category-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.category-list {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  overflow: hidden; /* hide extra pills */
+  scroll-behavior: smooth;
+}
+
+.category-btn {
+  background: var(--secondary);
+  color: var(--primary);
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.category-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+
+.category-btn.active {
+  background: var(--highlight);
+  color: var(--secondary);
+  border-color: var(--highlight);
+  box-shadow: 0 8px 18px rgba(46,204,113,0.12);
+}
+
+.scroll-btn {
+  background: var(--secondary);
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 6px 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 6px;
+  margin: 0 4px;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.scroll-btn:hover:not(:disabled) {
+  background: var(--highlight);
+  color: var(--secondary);
+}
+.scroll-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Mobile dropdown */
+.category-select-wrapper {
+  display: none;
+  width: 100%;
+}
+.category-select {
+  appearance: none;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: var(--secondary);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.98rem;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .desktop-only { display: none; }
+  .mobile-only { display: block; }
+}
+@media (max-width: 768px) {
+  .categories {
+    padding: 0.6rem 0.8rem;
+  }
+  .categories-title {
+    font-size: 0.95rem;
+  }
+}   
