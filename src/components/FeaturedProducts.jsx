@@ -10,7 +10,7 @@ function FeaturedProducts({ products }) {
   const featured = products.filter((p) => p.isFeatured);
 
   return (
-    <div className="featured-products-container">
+    <div className="featured-products-container cursor-pointer">
       <h2 className="title">Featured Products</h2>
       <Swiper
         modules={[Autoplay]}

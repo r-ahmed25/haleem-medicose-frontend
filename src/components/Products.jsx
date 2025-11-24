@@ -1,21 +1,22 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../STYLES/Products.css";
+import { useProductStore } from "../hooks/useProductStore";
 
 const ITEMS_PER_PAGE = 4;
 
 function getMaxButtonsForWidth(width) {
-  if (width <= 420) return 3;   // small phones
+  if (width <= 420) return 2;   // small phones
   if (width <= 768) return 4;   // tablets / larger phones
   return 5;                     // desktop
 }
 
-function Products({ products = [] }) {
+function Products() {
   const [page, setPage] = useState(1);
   const [maxButtons, setMaxButtons] = useState(() =>
     typeof window !== "undefined" ? getMaxButtonsForWidth(window.innerWidth) : 7
   );
-
+  const {products} = useProductStore();
   // update maxButtons on resize
   useEffect(() => {
     const handleResize = () => {

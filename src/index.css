@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Custom styles for authentication links */
+.auth-link {
+  @apply font-medium inline-flex items-center gap-1 cursor-pointer text-teal-600 transition-colors;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  @apply text-green-500;
+  text-decoration: none;
+}
+
 .hero {
   background: linear-gradient(to right, var(--primary), var(--accent));
   color: var(--secondary);

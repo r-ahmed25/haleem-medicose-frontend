@@ -48,6 +48,9 @@
   background: rgba(255,255,255,0.08);
 }
 
+.fileupload {
+  font-size: 2rem;
+}
 /* deliver to */
 .deliver-to { display: flex; flex-direction: column; gap: 2px; cursor: pointer; user-select: none; }
 .deliver-to .deliver-label { font-size: 0.85rem; color: rgba(255,255,255,0.85); font-weight: 700; }

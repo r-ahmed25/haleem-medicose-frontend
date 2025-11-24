@@ -1,32 +1,34 @@
 // src/pages/Home.js
-import React, { useMemo, useState } from "react";
+import React, { use, useMemo, useState } from "react";
 import Hero from "../components/Hero";
 import Categories from "../components/Categories";
 import FeaturedProducts from "../components/FeaturedProducts";
 import Products from "../components/Products";
 import productsData from "../data/products";
+import { useProductStore } from "../hooks/useProductStore";
 
 function Home({ searchQuery = "" }) {
+  const {products} =  useProductStore();
   const [selectedCategory, setSelectedCategory] = useState("All");
-
+   
   // normalize search for comparison
   const q = String(searchQuery || "").trim().toLowerCase();
 
   // featured products (not affected by category selection, optionally you could filter them too)
   const featuredProducts = useMemo(
-    () => productsData.filter((p) => p.isFeatured),
+    () => products.filter((p) => p.isFeatured),
     []
   );
 
   // derive categories list from data (first element 'All')
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(productsData.map((p) => p.category || "Uncategorized")));
+    const cats = Array.from(new Set(products.map((p) => p.category || "Uncategorized")));
     return ["All", ...cats];
   }, []);
 
   // Filter products by search + selectedCategory
   const filteredProducts = useMemo(() => {
-    return productsData.filter((p) => {
+    return products?.filter((p) => {
       const name = (p.name || "").toString().toLowerCase();
       const desc = (p.description || "").toString().toLowerCase();
       const cat = (p.category || "").toString();
@@ -45,7 +47,7 @@ function Home({ searchQuery = "" }) {
     <div>
       <Hero />
      <Categories
-        products={productsData}
+        products={products}
         selected={selectedCategory}
         onSelect={(cat) => setSelectedCategory(cat)}
         />

@@ -1,14 +1,13 @@
 /* === COLOR VARIABLES === */
 :root {
-  --primary: #008080;   /* Teal */
-  --secondary: #ffffff; /* White */
-  --accent: #003366;    /* Navy Blue */
-  --background: #f5f7fa;/* Light Gray */
-  --highlight: #2ecc71; /* Emerald Green */
+  --primary: #008080;   
+  --secondary: #ffffff; 
+  --accent: #003366;    
+  --background: #f5f7fa;
+  --highlight: #2ecc71; 
 }
 
 
-/* === GLOBAL STYLES === */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -18,7 +17,3 @@ body {
 
 
 
-
-/* === HERO SECTION === */
-
-/* === CATEGORIES === */

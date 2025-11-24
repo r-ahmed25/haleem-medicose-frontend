@@ -1,11 +1,10 @@
 import React from "react";
+import ContactForm from "../components/ContactForm";
 
 function Contact() {
   return (
-    <div className="page">
-      <h2>Contact Us</h2>
-      <p>Email: support@medstore.com</p>
-      <p>Phone: +91-9876543210</p>
+    <div className="container mx-auto p-8">
+      <ContactForm />
     </div>
   );
 }

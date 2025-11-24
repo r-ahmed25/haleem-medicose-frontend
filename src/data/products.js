@@ -1,6 +1,6 @@
 const products = [
   {
-    _id: "1",
+    _id: "507f1f77bcf86cd799439011",
     name: "Paracetamol 500mg Tablet",
     description: "Effective for fever and mild pain relief.",
     price: 25,
@@ -11,7 +11,7 @@ const products = [
     isFeatured: true,
   },
   {
-    _id: "2",
+    _id: "507f1f77bcf86cd799439012",
     name: "Amoxicillin 500mg Capsule",
     description: "Broad-spectrum antibiotic used for bacterial infections.",
     price: 150,
@@ -22,7 +22,7 @@ const products = [
     isFeatured: true,
   },
   {
-    _id: "3",
+    _id: "507f1f77bcf86cd799439013",
     name: "Vitamin C Syrup",
     description: "Immunity booster syrup enriched with Vitamin C.",
     price: 85,
@@ -33,7 +33,7 @@ const products = [
     isFeatured: false,
   },
   {
-    _id: "4",
+    _id: "507f1f77bcf86cd799439014",
     name: "Cetirizine 10mg Tablet",
     description: "Antihistamine to relieve allergy symptoms.",
     price: 35,
@@ -44,7 +44,7 @@ const products = [
     isFeatured: false,
   },
   {
-    _id: "5",
+    _id: "507f1f77bcf86cd799439015",
     name: "Cough Syrup 100ml",
     description: "Relieves sore throat and dry cough.",
     price: 95,
@@ -55,7 +55,7 @@ const products = [
     isFeatured: true,
   },
   {
-    _id: "6",
+    _id: "507f1f77bcf86cd799439016",
     name: "First Aid Kit",
     description: "Compact emergency medical first aid kit.",
     price: 550,
@@ -66,7 +66,7 @@ const products = [
     isFeatured: true,
   },
   {
-    _id: "7",
+    _id: "507f1f77bcf86cd799439017",
     name: "Insulin Injection Pen",
     description: "Pre-filled insulin pen for diabetes management.",
     price: 1200,
@@ -77,7 +77,7 @@ const products = [
     isFeatured: false,
   },
   {
-    _id: "8",
+    _id: "507f1f77bcf86cd799439018",
     name: "Face Masks (Box of 50)",
     description: "3-ply disposable surgical masks.",
     price: 299,
@@ -88,7 +88,7 @@ const products = [
     isFeatured: false,
   },
   {
-    _id: "9",
+    _id: "507f1f77bcf86cd799439019",
     name: "Digital Thermometer",
     description: "Quick and accurate digital thermometer.",
     price: 250,
@@ -99,7 +99,7 @@ const products = [
     isFeatured: true,
   },
   {
-    _id: "10",
+    _id: "507f1f77bcf86cd799439020",
     name: "Pharmacy Shelf Essentials",
     description: "Everyday medicines and essentials on pharmacy shelves.",
     price: 0,
