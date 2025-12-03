@@ -1,5 +1,5 @@
 // src/App.jsx
-import {useEffect, useRef} from "react";
+import { useEffect, useRef } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./hooks/useAuthStore";
@@ -14,11 +14,11 @@ import Contact from "./pages/Contact";
 import ProductDetails from "./pages/ProductDetails";
 import SearchResults from "./pages/SearchResults";
 import ChooseLocation from "./pages/ChooseLocation";
-import LoadingSpinner from './components/LoadingSpinner';
+import LoadingSpinner from "./components/LoadingSpinner";
 import AdminPage from "./pages/AdminPage";
 import MyOrders from "./pages/MyOrders";
 
-import { useCartStore } from "./hooks/useCartStore";  
+import { useCartStore } from "./hooks/useCartStore";
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useProductStore } from "./hooks/useProductStore";
@@ -30,41 +30,39 @@ import MyPrescriptions from "./pages/MyPrescriptions";
 import AdminPrescriptions from "./pages/AdminPrescriptions";
 
 function App1() {
-    const { isAuthenticated, user, checkingAuth, checkAuth } = useAuthStore();
-     const { getCartItems } = useCartStore();
-   const authChecked = useRef(false);
-   const fetchAllProducts = useProductStore((state) => state.fetchAllProducts);
-  useEffect(() => {
-    fetchAllProducts();
+  const { isAuthenticated, user, checkingAuth, checkAuth } = useAuthStore();
+  const { getCartItems } = useCartStore();
+  const authChecked = useRef(false);
+  const fetchAllProducts = useProductStore((state) => state.fetchAllProducts);
 
-  }, []);
-   useEffect (() => {
+  useEffect(() => {
     if (!authChecked.current) {
       checkAuth();
       authChecked.current = true;
     }
-   }, [checkAuth])
+  }, [checkAuth]);
 
-   // Remove dependency to prevent infinite re-renders
+  useEffect(() => {
+    fetchAllProducts();
+  }, []);
 
-   useEffect(() => { 
-    		if (!user) return;
+  // Remove dependency to prevent infinite re-renders
+
+  useEffect(() => {
+    if (!user) return;
 
     getCartItems();
-        
   }, [getCartItems, user]);
   useEffect(() => {
-  const handler = () => {
-    // call your zustand action to clear
-    useCartStore.getState().clearCart();
-  };
-  window.addEventListener("hm:cartClearRequested", handler);
-  return () => window.removeEventListener("hm:cartClearRequested", handler);
-}, []);
+    const handler = () => {
+      // call your zustand action to clear
+      useCartStore.getState().clearCart();
+    };
+    window.addEventListener("hm:cartClearRequested", handler);
+    return () => window.removeEventListener("hm:cartClearRequested", handler);
+  }, []);
 
-  if(checkingAuth) return <LoadingSpinner />
-
-  
+  if (checkingAuth) return <LoadingSpinner />;
 
   return (
     <>
@@ -74,10 +72,7 @@ function App1() {
         <Route path="/signup" element={<SignUpPage />} />
 
         {/* ✅ Protected Routes (requires login) */}
-        <Route
-          path="/"
-          element={<ProtectedRoute element={<AppLayout />} />}
-        >
+        <Route path="/" element={<ProtectedRoute element={<AppLayout />} />}>
           <Route index element={<Home />} />
           <Route path="contact" element={<Contact />} />
           <Route path="product/:id" element={<ProductDetails />} />
@@ -89,13 +84,8 @@ function App1() {
           <Route path="/prescriptions" element={<MyPrescriptions />} />
           <Route path="/admin/prescriptions" element={<AdminPrescriptions />} />
           <Route path="/update-profile" element={<ProfileForm />} />
-          <Route
-						path='/purchase-success'
-						element={<PurchaseSuccessPage  />}
-					/>
-					<Route path='/purchase-cancel' element={<PurchaseCancelPage />} />
-
-
+          <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
+          <Route path="/purchase-cancel" element={<PurchaseCancelPage />} />
         </Route>
 
         {/* ✅ Redirect logged-in users away from login/signup */}
@@ -107,7 +97,7 @@ function App1() {
         )}
 
         {/* ✅ Catch-all redirect */}
-         <Route
+        <Route
           path="*"
           element={
             isAuthenticated ? (

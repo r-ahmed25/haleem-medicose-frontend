@@ -1,0 +1,7 @@
+{
+  "android": {
+    "icon": {
+      "sources": ["src/assets/ic_launcher.png"]
+    }
+  }
+}

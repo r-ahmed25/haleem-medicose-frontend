@@ -1,15 +1,11 @@
-import { create } from 'zustand';
-import api from '../lib/axios';
-import {toast} from 'react-hot-toast'
-import { Navigate } from 'react-router-dom';
+import { create } from "zustand";
+import api from "../lib/axios";
+import { toast } from "react-hot-toast";
 
-// Removed global variables to prevent conflicts
-
-
-export const useAuthStore = create((set,get) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
-  message: '',
+  message: "",
   loading: false,
   error: null,
   checkingAuth: true,
@@ -17,188 +13,258 @@ export const useAuthStore = create((set,get) => ({
   loggingOut: false,
   refreshingToken: false,
 
+  // =======================
+  // SIGNUP
+  // =======================
   signup: async (formData) => {
-    set({ loading: true, error: null, refreshing: false });
+    set({ loading: true, error: null });
+
     if (formData.password !== formData.confirmPassword) {
-   	set({ loading: false });
-   	return toast.error("Passwords do not match");
-  }
+      set({ loading: false });
+      return toast.error("Passwords do not match");
+    }
+
     try {
-      console.log(formData)
-      const res = await api.post('/auth/signup', formData);
+      const res = await api.post("/auth/signup", formData, {
+        withCredentials: true,
+      });
+
+      if (res.data.accessToken) {
+        localStorage.setItem("access_token", res.data.accessToken);
+      }
+
       set({
-      isAuthenticated: true,
-      user: res.data.user, // assuming backend returns { user, message }
-      message: res.data.message,
-      loading: false,
-      refreshing: false,
-    });
-     toast.success(res.data.message);
-    } catch (err) {
-     set({
-      error: err.response?.data?.message || 'Signup failed',
-      loading: false,
-      refreshing: false,
-    });
-          toast.error(err.response?.data?.message || 'Signup failed')
+        isAuthenticated: true,
+        user: res.data.user,
+        message: res.data.message,
+        loading: false,
+      });
 
+      toast.success(res.data.message);
+    } catch (err) {
+      set({
+        error: err.response?.data?.message || "Signup failed",
+        loading: false,
+      });
+      toast.error(err.response?.data?.message || "Signup failed");
     }
   },
 
+  // =======================
+  // LOGIN
+  // =======================
   login: async (formData) => {
-    set({ loading: true, error: null, refreshing: false });
-    try {
-      const res = await api.post('/auth/login', formData);
-     set({ isAuthenticated: true, user: res?.data.user, message: res?.data.message, loading: false, refreshing: false });
-     const state = get();
-     toast.success(res.data.message);
-  }  catch (err) {
-      set({ error: err.response?.data?.message || 'Login failed', loading: false, refreshing: false });
-      toast.error(err.response?.data?.message || 'Login failed');
-    }
-  },
-
-  logout: async () => {
-    if (get().loggingOut) return; // Prevent multiple logout calls
-    set({ loading: true, error: null, refreshing: false, loggingOut: true });
+    set({ loading: true, error: null });
 
     try {
-      const res = await api.post('/auth/logout', {}, { withCredentials: true });
-      set({ isAuthenticated: false, user: null, message: res.data.message, loading: false, refreshing: false, loggingOut: false });
-      toast.success(res.data.message || "Logged out successfully");
+      const res = await api.post("/auth/login", formData, {
+        withCredentials: true,
+      });
+
+      // For mobile / hybrid support
+      if (res.data.accessToken) {
+        localStorage.setItem("access_token", res.data.accessToken);
+      }
+
+      set({
+        isAuthenticated: true,
+        user: res.data.user,
+        message: res.data.message,
+        loading: false,
+      });
+
+      toast.success(res.data.message);
     } catch (err) {
-      console.error("Logout API call failed:", err.response?.status, err.message);
-      // Even if the API call fails, clear the local state
-      set({ isAuthenticated: false, user: null, loading: false, refreshing: false, loggingOut: false });
-      toast.error('Logged out locally. Please log in again if needed.');
+      set({
+        error: err.response?.data?.message || "Login failed",
+        loading: false,
+      });
+      toast.error(err.response?.data?.message || "Login failed");
     }
   },
 
-  forceLogout: () => {
-    if (get().loggingOut) return; 
+  // =======================
+  // LOGOUT
+  // =======================
+  logout: async () => {
+    if (get().loggingOut) return;
+
+    set({ loading: true, loggingOut: true });
+
+    try {
+      await api.post("/auth/logout", {}, { withCredentials: true });
+    } catch (err) {
+      // Continue with local logout even if API fails
+    }
+
+    // Clear localStorage tokens
+    localStorage.removeItem("access_token");
+
+    // Force clear auth state
     set({
       isAuthenticated: false,
       user: null,
+      message: "",
       loading: false,
+      loggingOut: false,
       error: null,
       checkingAuth: false,
-      refreshing: false,
-      loggingOut: false
     });
-    toast.error('Session expired - please login again');
+
+    toast.success("Logged out successfully");
   },
+
+  // =======================
+  // CHECK AUTH (VERY IMPORTANT)
+  // =======================
   checkAuth: async () => {
     set({ checkingAuth: true });
 
     try {
-      const response = await api.get("/auth/getProfile");
-      set({ user: response.data, checkingAuth: false, isAuthenticated: true, refreshing: false });
-    } catch (error) {
-      console.log("Auth check failed:", error.response?.status, error.message);
-      if (error.response?.status === 401 || error.response?.status >= 400) {
-        console.log("Auth error, logging out immediately");
-        set({ checkingAuth: false, user: null, isAuthenticated: false, refreshing: false });
-      } else {
-        console.log("Non-auth error, logging out");
-        set({ checkingAuth: false, user: null, isAuthenticated: false, refreshing: false });
+      // Try cookie-based auth first (normal site)
+      const res = await api.get("/auth/getProfile", {
+        withCredentials: true,
+        // Don't add Authorization header for cookie-based auth
+      });
+
+      set({
+        user: res.data,
+        isAuthenticated: true,
+        checkingAuth: false,
+      });
+    } catch (cookieError) {
+      try {
+        // Fallback to token-based auth (mobile)
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          throw new Error("No token available");
+        }
+
+        const tokenRes = await api.get("/auth/getProfile", {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        set({
+          user: tokenRes.data,
+          isAuthenticated: true,
+          checkingAuth: false,
+        });
+      } catch (tokenError) {
+        // Clean up localStorage on failed auth
+        localStorage.removeItem("access_token");
+
+        set({
+          user: null,
+          isAuthenticated: false,
+          checkingAuth: false,
+        });
       }
     }
   },
- refreshToken: async () => {
-   if (get().refreshingToken) return Promise.resolve(); // Prevent multiple refresh attempts
-   console.log("Starting token refresh...");
-   set({ checkingAuth: true, refreshing: true, refreshingToken: true });
 
-   try {
-     const res = await api.get("/auth/refresh-token", { withCredentials: true });
-     set({ checkingAuth: false, refreshing: false, refreshingToken: false });
-     toast.success("Session refreshed successfully");
-     return res;
-   } catch (err) {
-     console.error("Token refresh failed:", err.response?.status, err.message);
+  // =======================
+  // REFRESH TOKEN
+  // =======================
+  refreshToken: async () => {
+    if (get().refreshingToken) return;
 
-     // If refresh token is also expired (401) or invalid, logout immediately
-     if (err.response?.status === 401) {
-       set({ user: null, isAuthenticated: false, checkingAuth: false, refreshing: false, refreshingToken: false });
-       return Promise.resolve();
-     }
+    set({ refreshing: true, refreshingToken: true });
 
-     // Handle network errors and timeouts
-     if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || !err.response) {
-       console.log("Network error during refresh, using force logout");
-       set({ user: null, isAuthenticated: false, checkingAuth: false, refreshing: false, refreshingToken: false });
-       return Promise.resolve();
-     }
+    try {
+      const res = await api.get("/auth/refresh-token", {
+        withCredentials: true,
+      });
 
-     set({ user: null, isAuthenticated: false, checkingAuth: false, refreshing: false, refreshingToken: false });
-     throw err;
-   }
- },
+      if (res.data?.accessToken) {
+        localStorage.setItem("access_token", res.data.accessToken);
+      }
 
-  clearMessage: () => set({ message: '' }),
+      set({
+        isAuthenticated: true,
+        refreshing: false,
+        refreshingToken: false,
+      });
 
-  // Reset all auth state
-  reset: () => {
-    console.log("Resetting auth state");
+      return res;
+    } catch (err) {
+      localStorage.removeItem("access_token");
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        refreshing: false,
+        refreshingToken: false,
+      });
+
+      return null;
+    }
+  },
+
+  forceLogout: () => {
+    localStorage.removeItem("access_token");
     set({
-      user: null,
       isAuthenticated: false,
-      message: '',
+      user: null,
       loading: false,
-      error: null,
-      checkingAuth: false,
-      refreshing: false,
       loggingOut: false,
-      refreshingToken: false
+      refreshingToken: false,
     });
+    toast.error("Session expired. Please login again.");
   },
 }));
 
+// =======================
+// AXIOS INTERCEPTOR
+// =======================
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  config.withCredentials = true;
+
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-  
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest._skipRefresh
+    ) {
+      const skipUrls = [
+        "/auth/login",
+        "/auth/signup",
+        "/auth/logout",
+        "/auth/refresh-token",
+        "/payment/verifypayment",
+        "/payment/createcheckout",
+        "/payment/getkey",
+      ];
 
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest._skipRefresh) {
-      const skipUrls = ['/auth/logout', '/auth/refresh-token', '/auth/login', '/auth/signup', '/orders/verifypayment', '/orders/createcheckout', '/orders/getkey'];
-      if (skipUrls.some(url => originalRequest.url?.includes(url))) {
-        originalRequest._skipRefresh = true;
+      if (skipUrls.some((url) => originalRequest.url?.includes(url))) {
         return Promise.reject(error);
-      }
-
-      const state = useAuthStore.getState();
-      if (state.loggingOut || state.refreshingToken) {
-        return Promise.reject(error); 
       }
 
       originalRequest._retry = true;
 
-      try {
-        const refreshResult = await useAuthStore.getState().refreshToken();
+      const refreshed = await useAuthStore.getState().refreshToken();
 
-        const newState = useAuthStore.getState();
-        if (!newState.isAuthenticated || !newState.user) {
-          return Promise.reject(new Error("Refresh token expired"));
-        }
-
-        return api(originalRequest);
-
-      } catch (refreshError) {
-        toast.error("Token refresh failed → logging out...", refreshError?.message || refreshError);
-
-        try {
-          await useAuthStore.getState().logout();
-        } catch (logoutError) {
-          console.error("Logout failed → forcing logout:", logoutError.message);
-          useAuthStore.getState().forceLogout();
-        }
-
-        return Promise.reject(refreshError);
+      if (!refreshed) {
+        useAuthStore.getState().forceLogout();
+        return Promise.reject(error);
       }
+
+      return api(originalRequest);
     }
 
     return Promise.reject(error);
