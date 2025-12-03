@@ -1,1 +1,23 @@
-node_modules
+# Node
+node_modules/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Vite
+dist/
+.vite/
+
+# Capacitor
+android/
+ios/
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
