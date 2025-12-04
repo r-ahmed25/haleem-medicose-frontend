@@ -19,7 +19,7 @@ const envBase = import.meta.env.VITE_API_URL;
 const androidDeviceBase = import.meta.env.VITE_ANDROID_DEVICE_API_URL;
 const androidEmulatorBase =
   import.meta.env.VITE_ANDROID_EMULATOR_API_URL ||
-  "https://10.0.2.2:5000/api";
+  "https://localhost:5000/api";
 const isDev = import.meta.env.MODE === "development";
 const fallbackDevBase = "https://localhost:5000/api";
 
