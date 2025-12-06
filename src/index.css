@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+/* === CSS VARIABLES - FIX FOR MOBILE === */
+/* Ensures CSS variables are available globally, especially for mobile webviews */
+:root {
+  --primary: #008080; /* Teal */
+  --secondary: #ffffff; /* White */
+  --accent: #003366; /* Navy Blue */
+  --background: #f5f7fa; /* Light Gray */
+  --highlight: #2ecc71; /* Emerald Green */
+}
+
+/* Mobile-specific font configuration */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Mobile viewport optimizations */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px; /* Prevent zoom on iOS */
+    line-height: 1.4;
+  }
+}
+
+/* Touch-friendly mobile enhancements */
+@media screen and (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea {
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+  }
+}
+
 /* Custom styles for authentication links */
 .auth-link {
   @apply font-medium inline-flex items-center gap-1 cursor-pointer text-teal-600 transition-colors;
@@ -104,7 +154,6 @@
 
 /* === FEATURED PRODUCTS === */
 
-
 /* === PRODUCTS === */
 .products {
   padding: 2rem;
@@ -135,7 +184,7 @@
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .product-card h3 {
@@ -210,57 +259,134 @@ footer {
   margin-top: 2rem;
 }
 
-
 /*choose location
 
 
-/* === RESPONSIVE DESIGN === */
-@media (max-width: 768px) {
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
+/* === ENHANCED RESPONSIVE DESIGN === */
+
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
+  .hero {
+    padding: 3rem 1.5rem;
   }
 
-  .search-box {
-    margin-top: 0.5rem;
-    width: 100%;
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .products {
+    padding: 1.5rem;
+  }
+
+  .product-list {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  /* Touch targets minimum 44px */
+  button,
+  .btn,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .hero {
+    padding: 2.5rem 1rem;
   }
 
   .hero h1 {
     font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
   }
 
   .hero p {
     font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
   }
 
   .hero-buttons {
     flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .hero-btn {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 250px;
+    text-align: center;
+  }
+
+  .categories {
+    padding: 1.5rem 1rem;
   }
 
   .category-list {
     flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
   }
 
-  .featured-list, .product-list {
-    grid-template-columns: 1fr;
+  .category-btn {
+    width: 100%;
+    max-width: 200px;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
   }
+
+  .products {
+    padding: 1.5rem 1rem;
+  }
+
+  .product-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .product-card {
+    padding: 1rem;
+  }
+
+  .product-card h3 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .product-card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  /* Enhanced mobile navigation */
   .hamburger {
     display: block;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
   }
 
   .nav-links {
     position: fixed;
     top: 0;
-    right: -250px; /* fully hidden initially */
+    right: -280px; /* fully hidden initially */
     height: 100%;
-    width: 250px;
-    background: var(--primary);
+    width: 280px;
+    background: linear-gradient(180deg, var(--accent), var(--primary));
     flex-direction: column;
     padding: 2rem 1rem;
     gap: 1.5rem;
     transition: right 0.3s ease-in-out;
     z-index: 1000;
+    overflow-y: auto;
   }
 
   .nav-links.open {
@@ -268,14 +394,17 @@ footer {
   }
 
   .nav-links li a {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    padding: 12px 8px;
+    border-radius: 8px;
+    display: block;
   }
 
   .nav-right {
     width: 100%;
     margin-top: 0.5rem;
     justify-content: space-between;
-    
+    align-items: center;
   }
 }
 
@@ -358,10 +487,47 @@ footer {
   }
 }
 
+/* Mobile phones */
 @media (max-width: 520px) {
+  body {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .hero {
+    padding: 2rem 0.8rem;
+  }
+
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .hero-btn {
+    padding: 0.9rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .categories,
+  .products {
+    padding: 1rem 0.8rem;
+  }
+
+  .product-card {
+    padding: 0.8rem;
+  }
+
+  .product-card h3 {
+    font-size: 1rem;
+  }
+
+  /* Enhanced navbar for very small screens */
   .navbar {
     flex-direction: column;
     align-items: center;
+    padding: 10px 12px;
   }
 
   /* Logo centered on top */
@@ -374,21 +540,43 @@ footer {
   /* Search full width below logo */
   .search-form {
     width: 100%;
+    max-width: 100%;
     display: flex;
     justify-content: space-between;
     gap: 0.3rem;
-  }
-  .search-box {
-    width: 100%;
+    padding: 8px 12px;
+    border-radius: 25px;
   }
 
-  /* Cart + Hamburger cramped together */
-  .cart-icon, .hamburger {
-    font-size: 1.4rem;
+  .search-box {
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 16px; /* Prevents zoom on iOS */
   }
+
+  .search-icon-left,
+  .camera-icon {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Cart + Hamburger spaced properly */
+  .cart-icon,
+  .hamburger {
+    font-size: 1.2rem;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .nav-right {
     width: 100%;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
   }
 }
