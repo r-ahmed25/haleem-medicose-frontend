@@ -9,7 +9,6 @@ import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-// ✅ OrderSummary Component
 const OrderSummary = () => {
   const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
   const clearCart = useCartStore((state) => state.clearCart);
@@ -88,7 +87,7 @@ const OrderSummary = () => {
           email: user?.email || "",
           contact: "9999999999",
         },
-        theme: { color: "#2E9797" },
+        theme: { color: "#008080" },
         handler: async function (razorResponse) {
           const pendingPayment = {
             payment_id: razorResponse.razorpay_payment_id,
@@ -121,26 +120,19 @@ const OrderSummary = () => {
               );
             }
             if (verifyRes.success) {
-              // ✅ Order created successfully
               window.dispatchEvent(new CustomEvent("hm:cartClearRequested"));
               navigate(
                 `/purchase-success?payment_id=${pendingPayment.payment_id}&order_id=${verifyRes.orderId}`
               );
             } else if (verifyRes.needs_address) {
-              // ⚠️ User needs to add address → redirect to location page
               navigate(`/location?pendingOrder=${verifyRes.order_id}`, {
                 state: { fromCheckout: true, pendingPayment: pendingPayment },
               });
             } else {
               navigate("/purchase-cancel");
             }
-            //            await clearCart();
-
-            //   navigate(`/purchase-success?payment_id=${verifyRes.payment_id}`);
           } catch (err) {
             console.error("Verification failed:", err);
-            const serverData = err?.response?.data;
-
             toast.error(
               err?.message || "Payment verification failed. Please try again."
             );
@@ -152,7 +144,6 @@ const OrderSummary = () => {
       };
 
       const rzp = new window.Razorpay(options);
-
       rzp.open();
     } catch (error) {
       console.error("Payment error:", error);
@@ -163,35 +154,64 @@ const OrderSummary = () => {
     }
   };
 
-  // ✅ JSX
   return (
     <motion.div
-      className="space-y-4 rounded-lg border border-gray-700 bg-mute-600 p-4 shadow-sm sm:p-6 w-full max-w-md mx-auto"
+      className="space-y-4 rounded-2xl p-5 sm:p-6 w-full max-w-md mx-auto"
+      style={{
+        background: "linear-gradient(180deg, #ffffff 0%, #f8fffe 100%)",
+        border: "1px solid rgba(0, 128, 128, 0.15)",
+        boxShadow: "0 8px 24px rgba(0, 128, 128, 0.08)",
+      }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <p className="text-lg sm:text-xl font-semibold text-green-700 text-center sm:text-left">
-        Order summary
+      <p
+        className="text-lg sm:text-xl font-bold text-center sm:text-left"
+        style={{
+          background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        Order Summary
       </p>
 
       <div className="space-y-4">
-        <div className="space-y-3">
+        <div
+          className="space-y-3 p-4 rounded-xl"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(0, 128, 128, 0.03) 0%, rgba(0, 51, 102, 0.03) 100%)",
+          }}
+        >
           <dl className="flex items-center justify-between gap-2 sm:gap-4">
-            <dt className="text-sm sm:text-base font-normal text-gray-700">
+            <dt
+              className="text-sm sm:text-base font-normal"
+              style={{ color: "#64748b" }}
+            >
               Original price
             </dt>
-            <dd className="text-sm sm:text-base font-medium text-white">
+            <dd
+              className="text-sm sm:text-base font-semibold"
+              style={{ color: "#334155" }}
+            >
               {formattedSubtotal}
             </dd>
           </dl>
 
           {savings > 0 && (
             <dl className="flex items-center justify-between gap-2 sm:gap-4">
-              <dt className="text-sm sm:text-base font-normal text-gray-300">
+              <dt
+                className="text-sm sm:text-base font-normal"
+                style={{ color: "#64748b" }}
+              >
                 Savings
               </dt>
-              <dd className="text-sm sm:text-base font-medium text-emerald-400">
+              <dd
+                className="text-sm sm:text-base font-semibold"
+                style={{ color: "#2ecc71" }}
+              >
                 -{formattedSavings}
               </dd>
             </dl>
@@ -199,26 +219,47 @@ const OrderSummary = () => {
 
           {coupon && isCouponApplied && (
             <dl className="flex items-center justify-between gap-2 sm:gap-4">
-              <dt className="text-sm sm:text-base font-normal text-gray-300">
+              <dt
+                className="text-sm sm:text-base font-normal"
+                style={{ color: "#64748b" }}
+              >
                 <span className="hidden sm:inline">Coupon ({coupon.code})</span>
                 <span className="sm:hidden">Coupon</span>
               </dt>
-              <dd className="text-sm sm:text-base font-medium text-emerald-400">
+              <dd
+                className="text-sm sm:text-base font-semibold"
+                style={{ color: "#2ecc71" }}
+              >
                 -{coupon.discountPercentage}%
               </dd>
             </dl>
           )}
 
-          <dl className="flex items-center justify-between gap-2 sm:gap-4 border-t border-gray-600 pt-3">
-            <dt className="text-base sm:text-lg font-bold text-white">Total</dt>
-            <dd className="text-base sm:text-lg font-bold text-green-700">
+          <dl
+            className="flex items-center justify-between gap-2 sm:gap-4 pt-3"
+            style={{ borderTop: "1px solid rgba(0, 128, 128, 0.1)" }}
+          >
+            <dt
+              className="text-base sm:text-lg font-bold"
+              style={{ color: "#003366" }}
+            >
+              Total
+            </dt>
+            <dd
+              className="text-base sm:text-lg font-bold"
+              style={{ color: "#008080" }}
+            >
               {formattedTotal}
             </dd>
           </dl>
         </div>
 
         <motion.button
-          className="flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 sm:px-5 py-3 sm:py-2.5 text-sm sm:text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] transition-all duration-200"
+          className="flex w-full items-center justify-center rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] transition-all duration-200"
+          style={{
+            background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
+            boxShadow: "0 4px 14px rgba(0, 128, 128, 0.25)",
+          }}
           whileHover={{ scale: isLoading ? 1 : 1.02 }}
           whileTap={{ scale: isLoading ? 1 : 0.98 }}
           onClick={handlePayment}
@@ -228,12 +269,16 @@ const OrderSummary = () => {
         </motion.button>
 
         <div className="flex items-center justify-center gap-2 pt-2">
-          <span className="text-xs sm:text-sm font-normal text-gray-400">
+          <span
+            className="text-xs sm:text-sm font-normal"
+            style={{ color: "#94a3b8" }}
+          >
             or
           </span>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-green-700 underline hover:text-emerald-300 hover:no-underline transition-colors duration-200"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium underline hover:no-underline transition-colors duration-200"
+            style={{ color: "#008080" }}
           >
             Continue Shopping
             <MoveRight size={16} />

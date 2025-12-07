@@ -53,7 +53,7 @@ function Home({ searchQuery = "" }) {
 
       return categoryMatches && searchMatches;
     });
-  }, [q, selectedCategory]);
+  }, [allProducts, q, selectedCategory]);
 
   return (
     <div>

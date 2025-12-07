@@ -1,22 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "../STYLES/Products.css";
-import { useProductStore } from "../hooks/useProductStore";
 
 const ITEMS_PER_PAGE = 4;
 
 function getMaxButtonsForWidth(width) {
-  if (width <= 420) return 2;   // small phones
-  if (width <= 768) return 4;   // tablets / larger phones
-  return 5;                     // desktop
+  if (width <= 420) return 2; // small phones
+  if (width <= 768) return 4; // tablets / larger phones
+  return 5; // desktop
 }
 
-function Products() {
+function Products({ products = [] }) {
   const [page, setPage] = useState(1);
   const [maxButtons, setMaxButtons] = useState(() =>
     typeof window !== "undefined" ? getMaxButtonsForWidth(window.innerWidth) : 7
   );
-  const {products} = useProductStore();
   // update maxButtons on resize
   useEffect(() => {
     const handleResize = () => {
@@ -50,10 +48,18 @@ function Products() {
 
   return (
     <section className="products">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
         <h2 style={{ margin: 0 }}>All Products</h2>
         <div className="showing-info" style={{ fontSize: 14, color: "#555" }}>
-          {totalItems === 0 ? 0 : ((page - 1) * ITEMS_PER_PAGE + 1)} - {Math.min(page * ITEMS_PER_PAGE, totalItems)} of {totalItems}
+          {totalItems === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1} -{" "}
+          {Math.min(page * ITEMS_PER_PAGE, totalItems)} of {totalItems}
         </div>
       </div>
 
@@ -79,7 +85,9 @@ function Products() {
                 <p className="price">₹{product.price}</p>
                 <p className="stock">
                   {typeof product.stock === "number"
-                    ? (product.stock > 0 ? `${product.stock} in stock` : "Out of stock")
+                    ? product.stock > 0
+                      ? `${product.stock} in stock`
+                      : "Out of stock"
                     : product.stock}
                 </p>
                 <Link to={`/product/${product._id}`} className="details-link">
@@ -95,8 +103,21 @@ function Products() {
 
       {/* Pagination controls */}
       {totalPages > 1 && (
-        <div className="pagination" style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 18, flexWrap: "wrap" }}>
-          <button onClick={() => goToPage(page - 1)} disabled={page === 1} className="page-btn prev-next">
+        <div
+          className="pagination"
+          style={{
+            display: "flex",
+            gap: 8,
+            justifyContent: "center",
+            marginTop: 18,
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 1}
+            className="page-btn prev-next"
+          >
             Prev
           </button>
 
@@ -132,7 +153,11 @@ function Products() {
             return pages;
           })()}
 
-          <button onClick={() => goToPage(page + 1)} disabled={page === totalPages} className="page-btn prev-next">
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page === totalPages}
+            className="page-btn prev-next"
+          >
             Next
           </button>
         </div>

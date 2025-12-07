@@ -5,172 +5,209 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "../hooks/useAuthStore";
 
 const SignUpPage = () => {
-    const [formData, setFormData] = useState({
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    });
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-    const navigate = useNavigate();
-    const { signup, loading, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+  const { signup, loading, isAuthenticated } = useAuthStore();
 
-    // Redirect to home page after successful signup
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/');
-        }
-    }, [isAuthenticated, navigate]);
-
-    // Redirect authenticated users to home page
+  // Redirect to home page after successful signup
+  useEffect(() => {
     if (isAuthenticated) {
-        return <Navigate to='/' replace />;
+      navigate("/");
     }
+  }, [isAuthenticated, navigate]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        signup(formData);
-    };
+  // Redirect authenticated users to home page
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
-    return (
-        <div className='min-h-screen bg-[#f5f7fa] text-[#003366] relative overflow-hidden'>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-r from-[#008080] via-[#008080] to-[#003366] opacity-10 pointer-events-none" />
-            <div className='flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
-                <motion.div
-                    className='sm:mx-auto sm:w-full sm:max-w-md'
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <h2 className='mt-6 text-center text-3xl font-extrabold text-[#008080]'>Create your account</h2>
-                </motion.div>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    signup(formData);
+  };
 
-                <motion.div
-                    className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                <div className='bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10'>
-                    <form onSubmit={handleSubmit} className='space-y-6'>
-                        <div>
-                            <label htmlFor='fullName' className='block text-sm font-medium text-[#003366]'>
-                                Full name
-                            </label>
-                            <div className='mt-1 relative rounded-md shadow-sm'>
-                                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                                    <User className='h-5 w-5 text-[#008080]' aria-hidden='true' />
-                                </div>
-                                <input
-                                    id='fullName'
-                                    type='text'
-                                    required
-                                    value={formData.fullName}
-                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                    className='block w-full px-3 py-2 pl-10 bg-white border border-gray-300 rounded-md shadow-sm
-                                     placeholder-gray-500 focus:outline-none focus:ring-[#008080] focus:border-[#008080] sm:text-sm'
-                                    placeholder='John Doe'
-                                />
-                            </div>
-                        </div>
+  return (
+    <div className="min-h-screen py-16 px-4 relative overflow-hidden">
+      {/* Enhanced center card with theme-matching gradient background */}
+      <div
+        className="max-w-2xl mx-auto p-8 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
+          boxShadow:
+            "0 25px 50px rgba(0, 128, 128, 0.25), 0 15px 35px rgba(0, 51, 102, 0.2)",
+        }}
+      >
+        {/* Decorative gradient overlay */}
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 20%, rgba(46, 204, 113, 0.15) 0%, transparent 50%)",
+          }}
+        />
 
-                        <div>
-                            <label htmlFor='email' className='block text-sm font-medium text-[#003366]'>
-                                Email address
-                            </label>
-                            <div className='mt-1 relative rounded-md shadow-sm'>
-                                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                                    <Mail className='h-5 w-5 text-[#008080]' aria-hidden='true' />
-                                </div>
-                                <input
-                                    id='email'
-                                    type='email'
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className=' block w-full px-3 py-2 pl-10 bg-white border border-gray-300
-                                    rounded-md shadow-sm
-                                     placeholder-gray-500 focus:outline-none focus:ring-[#008080]
-                                     focus:border-[#008080] sm:text-sm'
-                                    placeholder='you@example.com'
-                                />
-                            </div>
-                        </div>
+        <div className="relative z-10">
+          <motion.div
+            className="text-center mb-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">
+              Create your account
+            </h2>
+            <p className="text-white/90 text-sm leading-relaxed">
+              Join Haleem Medicose and start your health journey today.
+            </p>
+          </motion.div>
 
-                        <div>
-                            <label htmlFor='password' className='block text-sm font-medium text-[#003366]'>
-                                Password
-                            </label>
-                            <div className='mt-1 relative rounded-md shadow-sm'>
-                                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                                    <Lock className='h-5 w-5 text-[#008080]' aria-hidden='true' />
-                                </div>
-                                <input
-                                    id='password'
-                                    type='password'
-                                    required
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    className=' block w-full px-3 py-2 pl-10 bg-white border border-gray-300
-                                    rounded-md shadow-sm placeholder-gray-500 focus:outline-none focus:ring-[#008080] focus:border-[#008080] sm:text-sm'
-                                    placeholder='••••••••'
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor='confirmPassword' className='block text-sm font-medium text-[#003366]'>
-                                Confirm Password
-                            </label>
-                            <div className='mt-1 relative rounded-md shadow-sm'>
-                                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                                    <Lock className='h-5 w-5 text-[#008080]' aria-hidden='true' />
-                                </div>
-                                <input
-                                    id='confirmPassword'
-                                    type='password'
-                                    required
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                    className=' block w-full px-3 py-2 pl-10 bg-white border
-                                     border-gray-300 rounded-md shadow-sm placeholder-gray-500 focus:outline-none focus:ring-[#008080] focus:border-[#008080] sm:text-sm'
-                                    placeholder='••••••••'
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            type='submit'
-                            className='w-full flex justify-center py-2 px-4 border border-transparent
-                            rounded-md shadow-sm text-sm font-medium text-white bg-[#008080] cursor-pointer
-                             hover:bg-[#2ecc71] focus:outline-none focus:ring-2 focus:ring-offset-2
-                              focus:ring-[#008080] transition duration-150 ease-in-out disabled:opacity-50'
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
-                                    Loading...
-                                </>
-                            ) : (
-                                <>
-                                    <UserPlus className='mr-2 h-5 w-5' aria-hidden='true' />
-                                    Sign up
-                                </>
-                            )}
-                        </button>
-                    </form>
-
-                    <p className='mt-8 text-center text-sm text-[#003366] z-index-20'>
-                    	Already have an account?{" "}
-                    	<Link to='/login' className='auth-link'>
-                    		Login here <ArrowRight className='h-4 w-4' />
-                    	</Link>
-                    </p>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-white/80 mb-2"
+              >
+                Full name
+              </label>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-white/60" aria-hidden="true" />
                 </div>
-            </motion.div>
+                <input
+                  id="fullName"
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fullName: e.target.value })
+                  }
+                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  placeholder="John Doe"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-white/80 mb-2"
+              >
+                Email address
+              </label>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-white/60" aria-hidden="true" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-white/80 mb-2"
+              >
+                Password
+              </label>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-white/60" aria-hidden="true" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-white/80 mb-2"
+              >
+                Confirm Password
+              </label>
+              <div className="relative rounded-xl shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-white/60" aria-hidden="true" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-sm font-semibold text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-wait disabled:hover:scale-100"
+              style={{
+                background: loading
+                  ? "linear-gradient(135deg, rgba(0, 51, 102, 0.7), rgba(0, 68, 102, 0.7))"
+                  : "linear-gradient(135deg, var(--accent), #004466)",
+              }}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-4 w-4" aria-hidden="true" />
+                  Sign up
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-white/80">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-medium text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
+            >
+              Login here <ArrowRight className="h-4 w-4 inline ml-1" />
+            </Link>
+          </p>
         </div>
-       </div>
-    );
+      </div>
+    </div>
+  );
 };
 export default SignUpPage;

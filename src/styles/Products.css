@@ -1,8 +1,8 @@
 :root {
-  --primary: #008080;   /* Teal */
+  --primary: #008080; /* Teal */
   --secondary: #ffffff; /* White */
-  --accent: #003366;    /* Navy Blue */
-  --background: #f5f7fa;/* Light Gray */
+  --accent: #003366; /* Navy Blue */
+  --background: #f5f7fa; /* Light Gray */
   --highlight: #2ecc71; /* Emerald Green */
 }
 /* Container */
@@ -16,17 +16,16 @@
   padding: 8px;
 }
 
-
 /* Generic page button */
 .page-btn {
   background: transparent;
   border: 2px solid rgba(0, 0, 0, 0.06);
-  color: var(--accent);         /* navy text */
+  color: var(--accent); /* navy text */
   padding: 8px 12px;
   border-radius: 10px;
   min-width: 44px;
   min-height: 36px;
-  cursor: pointer;              /* pointer cursor */
+  cursor: pointer; /* pointer cursor */
   font-weight: 600;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   display: inline-flex;
@@ -43,8 +42,8 @@
 /* Hover effect */
 .page-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.10);
-  border-color: rgba(0,0,0,0.12);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 /* Disabled */
@@ -59,9 +58,9 @@
 .page-btn.active,
 .page-btn[aria-current="page"] {
   background: linear-gradient(180deg, var(--highlight) 0%, #28b96b 100%);
-  color: var(--secondary);      /* white */
+  color: var(--secondary); /* white */
   border-color: var(--highlight);
-  box-shadow: 0 8px 20px rgba(46,204,113,0.18);
+  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.18);
 }
 
 /* Small-screen tweaks */
@@ -101,5 +100,30 @@
     padding: 10px 14px;
     min-width: 48px;
     min-height: 44px;
+  }
+}
+
+/* Product card description - truncate on mobile */
+.product-card .description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+@media (max-width: 520px) {
+  .product-card .description {
+    -webkit-line-clamp: 2;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .product-card .description {
+    -webkit-line-clamp: 1;
+    font-size: 0.8rem;
   }
 }

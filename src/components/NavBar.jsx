@@ -155,253 +155,309 @@ export default function NavBar() {
 
   return (
     <>
-      <header className="navbar" role="banner">
-        <div className="nav-top">
-          <div className="nav-left-top">
-            <button
-              className="user-placeholder"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              onClick={() => setMenuOpen((v) => !v)}
-              title="Account & menu"
-            >
-              <FaUser />
-            </button>
+      <header
+        className="navbar relative"
+        role="banner"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
+          backdropFilter: "blur(10px)",
+          boxShadow:
+            "0 25px 50px rgba(0, 128, 128, 0.25), 0 15px 35px rgba(0, 51, 102, 0.2)",
+        }}
+      >
+        {/* Decorative gradient overlay */}
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background:
+              "radial-gradient(circle at 20% 20%, rgba(46, 204, 113, 0.15) 0%, transparent 50%)",
+          }}
+        />
 
-            <div
-              className="deliver-to"
-              onClick={() => navigate("/location")}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && navigate("/location")}
-              title="Change delivery location"
-            >
-              <div className="deliver-label">Deliver to</div>
-              <div className="deliver-address">
-                {isDetecting
-                  ? "Detecting..."
-                  : locationObj
-                  ? formatLocation(locationObj, isMobile)
-                  : "Set location"}
-                <span className="chev">›</span>
+        <div className="relative z-10">
+          <div className="nav-top">
+            <div className="nav-left-top">
+              <button
+                className="user-placeholder"
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                onClick={() => setMenuOpen((v) => !v)}
+                title="Account & menu"
+              >
+                <FaUser />
+              </button>
+
+              <div
+                className="deliver-to"
+                onClick={() => navigate("/location")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && navigate("/location")}
+                title="Change delivery location"
+              >
+                <div className="deliver-label">Deliver to</div>
+                <div className="deliver-address">
+                  {isDetecting
+                    ? "Detecting..."
+                    : locationObj
+                    ? formatLocation(locationObj, isMobile)
+                    : "Set location"}
+                  <span className="chev">›</span>
+                </div>
               </div>
+            </div>
+
+            <div className="nav-right-top">
+              {user && (
+                <Link
+                  to={"/cart"}
+                  className="relative group text-white/90 hover:text-emerald-400 transition duration-300"
+                >
+                  <FaShoppingCart
+                    className="inline-block mr-1 group-hover:text-emerald-400"
+                    size={20}
+                  />
+                  <span className="hidden sm:inline">Cart</span>
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full px-2 py-0.5 text-xs">
+                      {cart.length}
+                    </span>
+                  )}
+                </Link>
+              )}
             </div>
           </div>
 
-          <div className="nav-right-top">
-            {user && (
-              <Link
-                to={"/cart"}
-                className="relative group text-gray-300 hover:text-emerald-400 transition duration-300"
-              >
-                <FaShoppingCart
-                  className="inline-block mr-1 group-hover:text-emerald-400"
-                  size={20}
-                />
-                <span className="hidden sm:inline">Cart</span>
-                {cart.length > 0 && (
-                  <span className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full px-2 py-0.5 text-xs">
-                    {cart.length}
-                  </span>
-                )}
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* Search row */}
-        <div className="nav-search-row">
-          <form className="search-form" onSubmit={handleSearchSubmit}>
-            <button type="button" className="search-icon-left">
-              <FaSearch />
-            </button>
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search for Medicines..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {/* File Upload icon opens modal */}
-            <button
-              type="button"
-              onClick={() => setShowUploadModal(true)} // 👈 open modal
-              className="camera-icon fileupload text-sm sm:text-2xl cursor-pointer"
-              title="Upload Prescription"
+          {/* Search row */}
+          <div className="nav-search-row">
+            <form
+              className="search-form"
+              onSubmit={handleSearchSubmit}
+              style={{
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                borderRadius: "40px",
+                boxShadow: "0 10px 28px rgba(0, 0, 0, 0.1)",
+              }}
             >
-              <Upload />
-              <span style={{ color: "#359A9A" }}>Upload</span>
-            </button>
-          </form>
-        </div>
-
-        {/* Mobile menu with Framer Motion */}
-        <AnimatePresence>
-          {menuOpen && (
-            <>
-              <motion.div
-                className="menu-backdrop"
-                onClick={() => setMenuOpen(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              />
-              <motion.nav
-                ref={menuRef}
-                className="mobile-menu-drawer"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{
-                  type: "spring",
-                  damping: 25,
-                  stiffness: 200,
-                  mass: 0.8,
+              <button
+                type="button"
+                className="search-icon-left"
+                style={{
+                  color: "rgba(255, 255, 255, 0.8)",
                 }}
               >
-                <div className="menu-header">
-                  <button
-                    className="close-btn"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-                <motion.ul
-                  className="mobile-menu-list"
-                  initial="hidden"
-                  animate="visible"
+                <FaSearch />
+              </button>
+              <input
+                className="search-input"
+                type="text"
+                placeholder="Search for Medicines..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  color: "white",
+                  background: "transparent",
+                }}
+              />
+              {/* File Upload icon opens modal */}
+              <button
+                type="button"
+                onClick={() => setShowUploadModal(true)} // 👈 open modal
+                className="camera-icon fileupload text-sm sm:text-2xl cursor-pointer flex items-center gap-1 px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200"
+                title="Upload Prescription"
+                style={{
+                  color: "rgba(46, 204, 113, 0.95)",
+                }}
+              >
+                <Upload size={16} />
+                <span className="text-emerald-400 font-medium hidden sm:inline">
+                  Upload
+                </span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile menu with Framer Motion - moved outside header for proper z-index stacking */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              className="menu-backdrop"
+              onClick={() => setMenuOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+            <motion.nav
+              ref={menuRef}
+              className="mobile-menu-drawer"
+              initial={{ opacity: 0, x: "-50%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "-50%" }}
+              transition={{
+                type: "spring",
+                damping: 25,
+                stiffness: 200,
+                mass: 0.8,
+              }}
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
+                backdropFilter: "blur(15px)",
+                boxShadow:
+                  "0 25px 50px rgba(0, 128, 128, 0.3), 0 15px 35px rgba(0, 51, 102, 0.25)",
+                zIndex: 99999,
+                position: "fixed",
+                top: 0,
+                left: 0,
+                height: "100vh",
+                width: "280px",
+              }}
+            >
+              <div className="menu-header">
+                <button
+                  className="close-btn"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+              <motion.ul
+                className="mobile-menu-list"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.1,
+                      delayChildren: 0.2,
+                    },
+                  },
+                }}
+              >
+                <motion.li
                   variants={{
-                    hidden: { opacity: 0 },
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  <Link to="/" onClick={() => setMenuOpen(false)}>
+                    Home
+                  </Link>
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  {user?.role !== "admin" && (
+                    <Link to="/orders" onClick={() => setMenuOpen(false)}>
+                      My Orders
+                    </Link>
+                  )}
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  {user?.role !== "admin" && (
+                    <Link
+                      to="/prescriptions"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      My Prescriptions
+                    </Link>
+                  )}
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  {user?.role !== "admin" && (
+                    <Link to="/contact" onClick={() => setMenuOpen(false)}>
+                      Contact
+                    </Link>
+                  )}
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  <Link to="/update-profile" onClick={() => setMenuOpen(false)}>
+                    Account
+                  </Link>
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                >
+                  {user?.role === "admin" && (
+                    <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
+                      Dashboard
+                    </Link>
+                  )}
+                </motion.li>
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, x: -20, scale: 0.9 },
                     visible: {
                       opacity: 1,
+                      x: 0,
+                      scale: 1,
                       transition: {
-                        staggerChildren: 0.1,
-                        delayChildren: 0.2,
+                        type: "spring",
+                        damping: 15,
+                        stiffness: 300,
+                        delay: 0.6,
                       },
                     },
                   }}
                 >
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+                    whileHover={{
+                      scale: 1.02,
+                      transition: {
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
+                      },
                     }}
-                  >
-                    <Link to="/" onClick={() => setMenuOpen(false)}>
-                      Home
-                    </Link>
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                  >
-                    {user?.role !== "admin" && (
-                      <Link to="/orders" onClick={() => setMenuOpen(false)}>
-                        My Orders
-                      </Link>
-                    )}
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                  >
-                    {user?.role !== "admin" && (
-                      <Link
-                        to="/prescriptions"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        My Prescriptions
-                      </Link>
-                    )}
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                  >
-                    {user?.role !== "admin" && (
-                      <Link to="/contact" onClick={() => setMenuOpen(false)}>
-                        Contact
-                      </Link>
-                    )}
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                  >
-                    <Link
-                      to="/update-profile"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Account
-                    </Link>
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 },
-                    }}
-                  >
-                    {user?.role === "admin" && (
-                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
-                        Dashboard
-                      </Link>
-                    )}
-                  </motion.li>
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, x: -20, scale: 0.9 },
-                      visible: {
-                        opacity: 1,
-                        x: 0,
-                        scale: 1,
-                        transition: {
-                          type: "spring",
-                          damping: 15,
-                          stiffness: 300,
-                          delay: 0.6,
-                        },
+                    whileTap={{
+                      scale: 0.98,
+                      transition: {
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 17,
                       },
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
-                      whileHover={{
-                        scale: 1.02,
-                        transition: {
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 17,
-                        },
-                      }}
-                      whileTap={{
-                        scale: 0.98,
-                        transition: {
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 17,
-                        },
-                      }}
-                    >
-                      <LogOut className="h-4 w-4 sm:h-5 sm:w-5" /> Logout
-                    </button>
-                  </motion.li>
-                </motion.ul>
-              </motion.nav>
-            </>
-          )}
-        </AnimatePresence>
-      </header>
+                    <LogOut className="h-4 w-4 sm:h-5 sm:w-5" /> Logout
+                  </button>
+                </motion.li>
+              </motion.ul>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* 👇 Prescription Upload Modal */}
       {showUploadModal && (

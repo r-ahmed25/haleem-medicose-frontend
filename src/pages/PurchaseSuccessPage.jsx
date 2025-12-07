@@ -1,14 +1,19 @@
-import { ArrowRight, CheckCircle, HandHeart,  FileDown } from "lucide-react";
+import { ArrowRight, CheckCircle, HandHeart, FileDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import Confetti from "react-confetti";
 
 const PurchaseSuccessPage = () => {
-  //const paymentId = new URLSearchParams(window.location.search).get("payment_id");
-   const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window.location.search);
   const paymentId = params.get("payment_id");
   const orderId = params.get("order_id");
+
   return (
-    <div className="h-screen flex items-center justify-center px-4">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-8"
+      style={{
+        background: "linear-gradient(180deg, #f8fffe 0%, #e8f5f3 100%)",
+      }}
+    >
       <Confetti
         width={window.innerWidth}
         height={window.innerHeight}
@@ -16,44 +21,89 @@ const PurchaseSuccessPage = () => {
         style={{ zIndex: 99 }}
         numberOfPieces={700}
         recycle={false}
+        colors={["#008080", "#003366", "#2ecc71", "#27ae60", "#00a8a8"]}
       />
 
-      <div className="max-w-md w-full bg-mute-800 rounded-lg shadow-2xl overflow-hidden relative z-10">
+      <div
+        className="max-w-md w-full rounded-2xl shadow-2xl overflow-hidden relative z-10"
+        style={{
+          background: "linear-gradient(180deg, #ffffff 0%, #f8fffe 100%)",
+          border: "1px solid rgba(0, 128, 128, 0.15)",
+        }}
+      >
         <div className="p-6 sm:p-8">
           <div className="flex justify-center">
-            <CheckCircle className="text-green-700 w-16 h-16 mb-4" />
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.15) 100%)",
+              }}
+            >
+              <CheckCircle className="w-12 h-12" style={{ color: "#2ecc71" }} />
+            </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-center text-green-700 mb-2">
+          <h1
+            className="text-2xl sm:text-3xl font-bold text-center mb-2"
+            style={{
+              background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             Purchase Successful!
           </h1>
 
-          <p className="text-gray-700 text-center mb-2">
+          <p className="text-center mb-2" style={{ color: "#475569" }}>
             Thank you for your order. We're processing it now.
           </p>
-          <p className="text-green-700 text-center text-sm mb-6">
+          <p className="text-center text-sm mb-6" style={{ color: "#008080" }}>
             Check your email for order details and updates.
           </p>
 
-          <div className="bg-mute-700 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-700">Payment ID</span>
-              <span className="text-sm font-semibold text-green-700">
+          <div
+            className="rounded-xl p-4 mb-6"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0, 128, 128, 0.05) 0%, rgba(0, 51, 102, 0.05) 100%)",
+              border: "1px solid rgba(0, 128, 128, 0.1)",
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm" style={{ color: "#64748b" }}>
+                Payment ID
+              </span>
+              <span
+                className="text-sm font-semibold"
+                style={{ color: "#008080" }}
+              >
                 {paymentId || "N/A"}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">Estimated delivery</span>
-              <span className="text-sm font-semibold text-green-700">
+              <span className="text-sm" style={{ color: "#64748b" }}>
+                Estimated delivery
+              </span>
+              <span
+                className="text-sm font-semibold"
+                style={{ color: "#008080" }}
+              >
                 3-5 business days
               </span>
             </div>
           </div>
-                 {paymentId&& (
+
+          {paymentId && (
             <div className="text-center mb-6">
               <Link
                 to={`/api/orders/${orderId}/invoice`}
                 target="_blank"
-                className="inline-flex items-center justify-center gap-2 text-green-700 border border-green-700 hover:bg-green-700 hover:text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300"
+                className="inline-flex items-center justify-center gap-2 font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 hover:shadow-lg"
+                style={{
+                  background: "transparent",
+                  border: "2px solid #008080",
+                  color: "#008080",
+                }}
               >
                 <FileDown size={18} />
                 Download Invoice (PDF)
@@ -61,18 +111,24 @@ const PurchaseSuccessPage = () => {
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <button
-              className="w-full bg-green-700 hover:bg-emerald-700 text-white font-bold py-2 px-4
-              rounded-lg transition duration-300 flex items-center justify-center"
+              className="w-full font-bold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center text-white hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)",
+                boxShadow: "0 4px 14px rgba(46, 204, 113, 0.25)",
+              }}
             >
               <HandHeart className="mr-2" size={18} />
               Thanks for trusting us!
             </button>
             <Link
               to={"/"}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-green-300 font-bold py-2 px-4  
-              rounded-lg transition duration-300 flex items-center justify-center"
+              className="w-full font-bold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center text-white hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                boxShadow: "0 4px 14px rgba(0, 128, 128, 0.25)",
+              }}
             >
               Continue Shopping
               <ArrowRight className="ml-2" size={18} />
