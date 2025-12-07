@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { Upload, CheckCircle, XCircle } from "lucide-react";
 import { LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useCartStore } from "../hooks/useCartStore";
 import { formatLocation } from "../utils/locationFormatter";
@@ -28,7 +29,7 @@ export default function NavBar() {
   const [isDetecting, setIsDetecting] = useState(false);
   const [locationObj, setLocationObj] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false); // 👈 modal state
-  const [status, setStatus] = useState("idle"); 
+  const [status, setStatus] = useState("idle");
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -46,6 +47,56 @@ export default function NavBar() {
       } catch {}
     }
     detectAndSetLocation();
+  }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add("menu-open");
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.body.classList.remove("menu-open");
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove("menu-open");
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
+  }, [menuOpen]);
+
+  // Dynamic menu width adjustment for mobile
+  useEffect(() => {
+    const adjustMenuWidth = () => {
+      const drawer = menuRef.current;
+      if (!drawer) return;
+
+      const screenWidth = window.innerWidth;
+      let maxWidth;
+
+      if (screenWidth <= 360) {
+        maxWidth = Math.min(screenWidth * 0.7, 240);
+      } else if (screenWidth <= 480) {
+        maxWidth = Math.min(screenWidth * 0.75, 260);
+      } else {
+        maxWidth = Math.min(screenWidth * 0.8, 280);
+      }
+
+      drawer.style.width = `${maxWidth}px`;
+      drawer.style.maxWidth = `${maxWidth}px`;
+    };
+
+    adjustMenuWidth();
+    window.addEventListener("resize", adjustMenuWidth);
+
+    return () => window.removeEventListener("resize", adjustMenuWidth);
   }, []);
 
   async function reverseGeocode(lat, lon) {
@@ -178,84 +229,186 @@ export default function NavBar() {
               title="Upload Prescription"
             >
               <Upload />
-              <span style={{color: '#359A9A'}}>Upload</span>
+              <span style={{ color: "#359A9A" }}>Upload</span>
             </button>
           </form>
-           </div>
+        </div>
 
-        {/* mobile menu (unchanged) */}
-        <nav
-          ref={menuRef}
-          className={`mobile-menu-drawer ${menuOpen ? "open" : ""}`}
-        >
-          <div className="menu-header">
-            {" "}
-            <button className="close-btn" onClick={() => setMenuOpen(false)}>
-              <FaTimes />
-            </button>{" "}
-          </div>{" "}
-          <ul className="mobile-menu-list">
-            {" "}
-            <li>
-              <Link to="/" onClick={() => setMenuOpen(false)}>
-                Home
-              </Link>
-            </li>{" "}
-           
-            <li>
-              {user?.role !== "admin" && (
-                <Link to="/orders" onClick={() => setMenuOpen(false)}>
-                  My Orders
-                </Link>
-              )}
-            </li>{" "}
-           
-            <li>
-              {user?.role !== "admin" && (
-                <Link to="/prescriptions" onClick={() => setMenuOpen(false)}>
-                  My Prescriptions
-                </Link>
-              )}
-            </li>{" "}
-              <li>
-              {user?.role !== "admin" && (
-                <Link to="/contact" onClick={() => setMenuOpen(false)}>
-                  Contact
-                </Link>
-              )}
-            </li>{" "}
-            <li>
-              <Link to="/update-profile" onClick={() => setMenuOpen(false)}>
-                Account
-              </Link>
-            </li>{" "}
-            <li>
-              {user?.role === "admin" && (
-                <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
-                  Dashboard
-                </Link>
-              )}
-            </li>{" "}
-            <li>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+        {/* Mobile menu with Framer Motion */}
+        <AnimatePresence>
+          {menuOpen && (
+            <>
+              <motion.div
+                className="menu-backdrop"
+                onClick={() => setMenuOpen(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              />
+              <motion.nav
+                ref={menuRef}
+                className="mobile-menu-drawer"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 200,
+                  mass: 0.8,
+                }}
               >
-                {" "}
-                <LogOut className="h-4 w-4 sm:h-5 sm:w-5" /> Logout{" "}
-              </button>{" "}
-            </li>{" "}
-          </ul>
-        </nav>
-        {menuOpen && (
-          <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />
-        )}
+                <div className="menu-header">
+                  <button
+                    className="close-btn"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+                <motion.ul
+                  className="mobile-menu-list"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: {
+                        staggerChildren: 0.1,
+                        delayChildren: 0.2,
+                      },
+                    },
+                  }}
+                >
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    <Link to="/" onClick={() => setMenuOpen(false)}>
+                      Home
+                    </Link>
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    {user?.role !== "admin" && (
+                      <Link to="/orders" onClick={() => setMenuOpen(false)}>
+                        My Orders
+                      </Link>
+                    )}
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    {user?.role !== "admin" && (
+                      <Link
+                        to="/prescriptions"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        My Prescriptions
+                      </Link>
+                    )}
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    {user?.role !== "admin" && (
+                      <Link to="/contact" onClick={() => setMenuOpen(false)}>
+                        Contact
+                      </Link>
+                    )}
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    <Link
+                      to="/update-profile"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Account
+                    </Link>
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 },
+                    }}
+                  >
+                    {user?.role === "admin" && (
+                      <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
+                        Dashboard
+                      </Link>
+                    )}
+                  </motion.li>
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, x: -20, scale: 0.9 },
+                      visible: {
+                        opacity: 1,
+                        x: 0,
+                        scale: 1,
+                        transition: {
+                          type: "spring",
+                          damping: 15,
+                          stiffness: 300,
+                          delay: 0.6,
+                        },
+                      },
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500"
+                      whileHover={{
+                        scale: 1.02,
+                        transition: {
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 17,
+                        },
+                      }}
+                      whileTap={{
+                        scale: 0.98,
+                        transition: {
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 17,
+                        },
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 sm:h-5 sm:w-5" /> Logout
+                    </button>
+                  </motion.li>
+                </motion.ul>
+              </motion.nav>
+            </>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* 👇 Prescription Upload Modal */}
       {showUploadModal && (
-        <PrescriptionUploadForm onClose={() => setShowUploadModal(false)} setStatus={setStatus} />
+        <PrescriptionUploadForm
+          onClose={() => setShowUploadModal(false)}
+          setStatus={setStatus}
+        />
       )}
     </>
   );

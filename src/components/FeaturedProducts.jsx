@@ -9,6 +9,18 @@ function FeaturedProducts({ products }) {
   const navigate = useNavigate();
   const featured = products.filter((p) => p.isFeatured);
 
+  // Fallback when no featured products
+  if (featured.length === 0) {
+    return (
+      <div className="featured-products-container">
+        <h2 className="title">Featured Products</h2>
+        <p style={{ textAlign: "center", padding: "20px", color: "#666" }}>
+          No featured products available at the moment.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="featured-products-container cursor-pointer">
       <h2 className="title">Featured Products</h2>

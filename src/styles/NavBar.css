@@ -1,5 +1,6 @@
 /* NavBar.css - user-placeholder toggles menu on all screens
    Uses CSS variables: --primary, --secondary, --primary-dark, --card, etc.
+   Version: 2.4 - Seamless logout button color blending with app theme
 */
 
 .navbar {
@@ -11,6 +12,7 @@
   position: relative;
   z-index: 2000;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Top row */
@@ -137,54 +139,116 @@
 .mobile-menu-drawer {
   position: fixed;
   top: 0;
-  left: -440px;
-  width: 340px;
+  left: 0;
+  width: min(75vw, 280px);
+  max-width: 280px;
   height: 100vh;
   background: linear-gradient(
-    180deg,
-    var(--primary-dark, #006),
-    var(--primary)
+    135deg,
+    var(--primary) 0%,
+    #006666 50%,
+    var(--accent) 100%
   );
   color: var(--secondary);
-  padding: 22px;
+  padding: 24px 20px;
   z-index: 2200;
-  box-shadow: 8px 0 36px rgba(0, 0, 0, 0.28);
-  transition: left 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
+  box-shadow: 0 0 50px rgba(0, 128, 128, 0.3), 0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   overflow-y: auto;
-}
-.mobile-menu-drawer.open {
-  left: 0;
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Force hardware acceleration */
+  -webkit-overflow-scrolling: touch;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  /* Hidden by default, Framer Motion handles visibility */
 }
 .menu-header {
   display: flex;
   justify-content: flex-end;
+  margin-bottom: 24px;
 }
 .close-btn {
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--secondary);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  padding: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
 }
 .mobile-menu-list {
   list-style: none;
-  padding: 10px 0;
-  margin: 10px 0 0 0;
+  padding: 0;
+  margin: 0;
 }
 .mobile-menu-list li {
-  padding: 10px 6px;
+  margin-bottom: 8px;
 }
 .mobile-menu-list li a {
   color: var(--secondary);
   text-decoration: none;
   font-size: 1rem;
+  font-weight: 500;
   display: block;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
 }
 .mobile-menu-list li a:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(46, 204, 113, 0.2);
+  border-color: var(--highlight);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+}
+
+/* Special styling for logout button */
+.mobile-menu-list li button {
+  color: var(--secondary) !important;
+  background: linear-gradient(135deg, var(--accent), #004466) !important;
+  border: 1px solid rgba(0, 51, 102, 0.3) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.mobile-menu-list li button::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  ) !important;
+  transition: left 0.5s !important;
+}
+
+.mobile-menu-list li button:hover::before {
+  left: 100% !important;
+}
+
+.mobile-menu-list li button:hover {
+  background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+  border-color: rgba(0, 128, 128, 0.5) !important;
+  transform: translateX(0) translateY(-1px) !important;
+  box-shadow: 0 8px 25px rgba(0, 128, 128, 0.3),
+    0 4px 12px rgba(0, 128, 128, 0.2) !important;
 }
 
 /* backdrop */
@@ -193,6 +257,16 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.36);
   z-index: 2100;
+}
+
+/* Force viewport containment for all mobile menu drawers */
+@media screen and (max-width: 768px) {
+  .mobile-menu-drawer {
+    width: min(70vw, 260px) !important;
+    max-width: 260px !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
 }
 
 /* Enhanced mobile optimizations */
@@ -262,6 +336,67 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Mobile menu drawer improvements for very small screens */
+  .mobile-menu-drawer {
+    width: min(75vw, 240px);
+    max-width: 240px;
+    padding: 20px 16px;
+  }
+
+  .mobile-menu-list li {
+    margin-bottom: 6px;
+  }
+
+  .mobile-menu-list li a {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  .menu-header {
+    margin-bottom: 20px;
+  }
+
+  .close-btn {
+    padding: 8px;
+    font-size: 1rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 6px 10px;
+  }
+
+  .mobile-menu-drawer {
+    width: min(70vw, 220px);
+    max-width: 220px;
+    padding: 18px 14px;
+  }
+
+  .mobile-menu-list li a {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .menu-header {
+    margin-bottom: 16px;
+  }
+
+  .user-placeholder {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+
+  .deliver-to .deliver-label {
+    font-size: 0.7rem;
+  }
+
+  .deliver-to .deliver-address {
+    font-size: 0.75rem;
   }
 }
 
