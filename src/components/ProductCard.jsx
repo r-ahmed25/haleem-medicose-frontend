@@ -22,7 +22,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <div
-      className="relative flex flex-col overflow-hidden rounded-xl border border-gray-700/60 bg-transparent shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-150"
+      className="emerald-inset-card relative flex flex-col overflow-hidden rounded-xl transform hover:-translate-y-0.5 transition-all duration-150"
       aria-labelledby={`prod-${product._id}`}
     >
       {/* Image (contained + centered) */}
@@ -65,8 +65,9 @@ const ProductCard = ({ product }) => {
             {product.name}
           </h5>
 
-          <p className="mt-1 text-xs text-gray-700 max-h-10 overflow-hidden">
-            {`${product.description.slice(0, 80)}...` || "No description available."}
+          <p className="mt-1 text-xs text-gray-700 max-h-8 overflow-hidden line-clamp-2">
+            {`${product.description.slice(0, 40)}...` ||
+              "No description available."}
           </p>
         </div>
 
@@ -79,7 +80,9 @@ const ProductCard = ({ product }) => {
                   : "Out of stock"
                 : product.stock ?? "—"}
             </span>
-            <span className="text-[10px] text-gray-500 mt-1">SKU: {product._id?.slice(-6)}</span>
+            <span className="text-[10px] text-gray-500 mt-1">
+              SKU: {product._id?.slice(-6)}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -95,12 +98,18 @@ const ProductCard = ({ product }) => {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               className={`flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
-                ${isOutOfStock
-                  ? "cursor-not-allowed bg-gray-700/50 opacity-70"
-                  : "bg-emerald-600 hover:bg-emerald-700"}
+                ${
+                  isOutOfStock
+                    ? "cursor-not-allowed bg-gray-700/50 opacity-70"
+                    : "bg-emerald-600 hover:bg-emerald-700"
+                }
               `}
               aria-disabled={isOutOfStock}
-              aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
+              aria-label={
+                isOutOfStock
+                  ? `${product.name} is out of stock`
+                  : `Add ${product.name} to cart`
+              }
             >
               <ShoppingCart size={16} />
               <span>{isOutOfStock ? "Unavailable" : "Add"}</span>

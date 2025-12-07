@@ -8,6 +8,7 @@ import {
   FaSearch,
   FaFileUpload,
 } from "react-icons/fa";
+import { Upload, CheckCircle, XCircle } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useCartStore } from "../hooks/useCartStore";
@@ -27,7 +28,7 @@ export default function NavBar() {
   const [isDetecting, setIsDetecting] = useState(false);
   const [locationObj, setLocationObj] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false); // 👈 modal state
-
+  const [status, setStatus] = useState("idle"); 
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -176,10 +177,11 @@ export default function NavBar() {
               className="camera-icon fileupload text-sm sm:text-2xl cursor-pointer"
               title="Upload Prescription"
             >
-              <FaFileUpload />
+              <Upload />
+              <span style={{color: '#359A9A'}}>Upload</span>
             </button>
           </form>
-        </div>
+           </div>
 
         {/* mobile menu (unchanged) */}
         <nav
@@ -253,7 +255,7 @@ export default function NavBar() {
 
       {/* 👇 Prescription Upload Modal */}
       {showUploadModal && (
-        <PrescriptionUploadForm onClose={() => setShowUploadModal(false)} />
+        <PrescriptionUploadForm onClose={() => setShowUploadModal(false)} setStatus={setStatus} />
       )}
     </>
   );

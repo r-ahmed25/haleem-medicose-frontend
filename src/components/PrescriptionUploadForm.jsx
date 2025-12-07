@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { set } from "react-hook-form";
 
-export default function PrescriptionUploadForm({ onClose }) {
+export default function PrescriptionUploadForm({ onClose, setStatus }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,11 +24,13 @@ export default function PrescriptionUploadForm({ onClose }) {
       setLoading(true);
       await api.post("/prescriptions/uploads", { image: file });
       toast.success("Prescription uploaded successfully!");
+      setStatus("success"); // Update status on successful upload
       setFile(null);
       onClose(); // close modal on success
     } catch (err) {
       console.error(err);
       toast.error("Upload failed");
+      setStatus("error"); // Update status on error
     } finally {
       setLoading(false);
     }
