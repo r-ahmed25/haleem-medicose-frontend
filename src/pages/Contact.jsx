@@ -3,7 +3,7 @@ import ContactForm from "../components/ContactForm";
 
 function Contact() {
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto px-8 py-6">
       <ContactForm />
     </div>
   );

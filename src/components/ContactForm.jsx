@@ -51,10 +51,10 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="py-16 px-4">
+    <section className="py-8 px-2">
       {/* Enhanced center card with theme-matching gradient background */}
       <div
-        className="max-w-2xl mx-auto p-8 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
+        className="max-w-5xl mx-auto p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
         style={{
           background:
             "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
@@ -72,41 +72,41 @@ export default function ContactForm() {
         />
 
         <div className="relative z-10">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">
               Contact Us
             </h3>
-            <p className="text-white/90 text-sm leading-relaxed max-w-md mx-auto">
+            <p className="text-white/90 text-base leading-relaxed max-w-lg mx-auto">
               Have a question or need help? Send us a message and we'll get back
               to you ASAP.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <label className="block">
-                <span className="text-white/80 text-sm font-medium mb-2 block">
+                <span className="text-white/80 text-base font-medium mb-3 block">
                   Name
                 </span>
                 <input
                   type="text"
                   value={form.name}
                   onChange={update("name")}
-                  className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-4 py-3 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-5 py-4 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm text-base"
                   placeholder="Your name"
                   required
                 />
               </label>
 
               <label className="block">
-                <span className="text-white/80 text-sm font-medium mb-2 block">
+                <span className="text-white/80 text-base font-medium mb-3 block">
                   Email
                 </span>
                 <input
                   type="email"
                   value={form.email}
                   onChange={update("email")}
-                  className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-4 py-3 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                  className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-5 py-4 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm text-base"
                   placeholder="you@example.com"
                   required
                 />
@@ -114,37 +114,37 @@ export default function ContactForm() {
             </div>
 
             <label className="block">
-              <span className="text-white/80 text-sm font-medium mb-2 block">
+              <span className="text-white/80 text-base font-medium mb-3 block">
                 Subject (optional)
               </span>
               <input
                 type="text"
                 value={form.subject}
                 onChange={update("subject")}
-                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-4 py-3 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm"
+                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-5 py-4 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm text-base"
                 placeholder="Short subject"
               />
             </label>
 
             <label className="block">
-              <span className="text-white/80 text-sm font-medium mb-2 block">
+              <span className="text-white/80 text-base font-medium mb-3 block">
                 Message
               </span>
               <textarea
                 value={form.message}
                 onChange={update("message")}
-                rows="5"
-                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-4 py-3 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 resize-y backdrop-blur-sm"
+                rows="6"
+                className="w-full rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 px-5 py-4 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all duration-200 resize-y backdrop-blur-sm text-base"
                 placeholder="How can we help?"
                 required
               />
             </label>
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-center justify-center sm:justify-between gap-4 pt-2">
+            <div className="flex flex-col md:flex-row items-center md:items-center justify-center md:justify-between gap-6 pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 transform w-full sm:w-auto max-w-[80%] sm:max-w-none ${
+                className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all duration-200 transform w-full md:w-auto max-w-[80%] md:max-w-none ${
                   loading
                     ? "opacity-70 cursor-wait text-white/70"
                     : "text-white shadow-lg hover:shadow-blue-500/25"
@@ -157,13 +157,13 @@ export default function ContactForm() {
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
                     <svg
-                      className="w-4 h-4"
+                      className="w-5 h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -180,9 +180,9 @@ export default function ContactForm() {
                 )}
               </button>
 
-              <span className="text-white/60 text-xs flex items-center gap-1">
+              <span className="text-white/60 text-sm flex items-center gap-2 text-center md:text-left">
                 <svg
-                  className="w-3 h-3"
+                  className="w-4 h-4 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
