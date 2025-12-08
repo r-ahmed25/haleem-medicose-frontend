@@ -28,7 +28,18 @@ export default function MyOrders() {
         `${apiUrl}/orders/${orderId}/invoice`,
         filename
       );
-      toast.success("Invoice downloaded successfully!");
+
+      // Provide device-specific success message
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        ) || window.innerWidth <= 768;
+
+      if (isMobile) {
+        toast.success("Invoice saved to Documents folder!");
+      } else {
+        toast.success("Invoice downloaded successfully!");
+      }
     } catch (error) {
       console.error("Download error:", error);
 
@@ -184,7 +195,12 @@ export default function MyOrders() {
                 className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
                 style={{ color: "#003366" }}
               >
-                Invoice
+                <div className="flex flex-col items-center">
+                  <span>Invoice</span>
+                  <span className="text-xs font-normal text-slate-400 hidden sm:block">
+                    Downloads on all devices
+                  </span>
+                </div>
               </th>
             </tr>
           </thead>
