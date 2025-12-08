@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import api from "../lib/axios";
-import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import {
   downloadAuthenticatedFile,
@@ -13,6 +12,14 @@ export default function MyOrders() {
   const [filter, setFilter] = useState("");
   const [pagination, setPagination] = useState(null);
   const [downloading, setDownloading] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleInvoiceDownload = async (orderId) => {
     setDownloading(orderId);
@@ -29,12 +36,6 @@ export default function MyOrders() {
         filename
       );
 
-      // Provide device-specific success message
-      const isMobile =
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent
-        ) || window.innerWidth <= 768;
-
       if (isMobile) {
         toast.success("Invoice saved to Documents folder!");
       } else {
@@ -43,7 +44,6 @@ export default function MyOrders() {
     } catch (error) {
       console.error("Download error:", error);
 
-      // Provide specific error messages
       if (error.message.includes("Authentication failed")) {
         toast.error("Session expired. Please log in again.");
       } else if (error.message.includes("Access denied")) {
@@ -83,6 +83,101 @@ export default function MyOrders() {
       default:
         return "bg-slate-50 text-slate-600 border-slate-200";
     }
+  };
+
+  const OrderModal = ({ order, onClose }) => {
+    if (!order) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div
+            className="sticky top-0 bg-white px-6 py-4 border-b border-teal-100 flex justify-between items-center"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0, 128, 128, 0.08) 0%, rgba(0, 51, 102, 0.08) 100%)",
+            }}
+          >
+            <h2
+              className="text-lg font-bold"
+              style={{
+                background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Order Details
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 text-2xl font-bold"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-start">
+                <span className="text-sm text-slate-500">Order ID</span>
+                <span className="text-sm font-mono text-slate-700 text-right max-w-[200px] break-all">
+                  {order.razorpayOrderId}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-500">Date</span>
+                <span className="text-sm text-slate-700">
+                  {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-500">Status</span>
+                <span
+                  className={`inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
+                    order.status
+                  )}`}
+                >
+                  {order.status || "N/A"}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-500">Total</span>
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: "#008080" }}
+                >
+                  ₹{(order.totalAmount / 100).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-teal-100">
+              <button
+                onClick={() => handleInvoiceDownload(order._id)}
+                disabled={downloading === order._id}
+                className="w-full py-3 rounded-xl font-medium text-sm transition-all hover:shadow-md disabled:opacity-50"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                  color: "white",
+                }}
+              >
+                {downloading === order._id
+                  ? "Downloading..."
+                  : "Download Invoice"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -154,127 +249,182 @@ export default function MyOrders() {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div
-        className="overflow-x-auto rounded-2xl shadow-lg border border-teal-100"
-        style={{ background: "white" }}
-      >
-        <table className="min-w-full">
-          <thead
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(0, 128, 128, 0.08) 0%, rgba(0, 51, 102, 0.08) 100%)",
-            }}
-          >
-            <tr>
-              <th
-                className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#003366" }}
+      {/* Mobile View - Compact Cards */}
+      {isMobile ? (
+        <div className="space-y-3">
+          {orders.length > 0 ? (
+            orders.map((o) => (
+              <div
+                key={o._id}
+                className="bg-white rounded-xl shadow-md border border-teal-100 p-4"
               >
-                Order ID
-              </th>
-              <th
-                className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#003366" }}
-              >
-                Date
-              </th>
-              <th
-                className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#003366" }}
-              >
-                Status
-              </th>
-              <th
-                className="px-4 sm:px-6 py-4 text-right text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#003366" }}
-              >
-                Total
-              </th>
-              <th
-                className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                style={{ color: "#003366" }}
-              >
-                <div className="flex flex-col items-center">
-                  <span>Invoice</span>
-                  <span className="text-xs font-normal text-slate-400 hidden sm:block">
-                    Downloads on all devices
-                  </span>
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <p className="text-sm text-slate-500">
+                      {new Date(o.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <p
+                      className="text-lg font-bold"
+                      style={{ color: "#008080" }}
+                    >
+                      ₹{(o.totalAmount / 100).toFixed(2)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedOrder(o)}
+                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                      color: "white",
+                    }}
+                  >
+                    Details
+                  </button>
                 </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-teal-50">
-            {orders.length > 0 ? (
-              orders.map((o, idx) => (
-                <tr
-                  key={o._id}
-                  className={`transition-colors hover:bg-teal-50/50 ${
-                    idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
-                  }`}
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12 text-slate-400 italic text-sm bg-white rounded-xl shadow-md">
+              No orders found.
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Desktop View - Full Table */
+        <div
+          className="overflow-x-auto rounded-2xl shadow-lg border border-teal-100"
+          style={{ background: "white" }}
+        >
+          <table className="min-w-full">
+            <thead
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(0, 128, 128, 0.08) 0%, rgba(0, 51, 102, 0.08) 100%)",
+              }}
+            >
+              <tr>
+                <th
+                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#003366" }}
                 >
-                  <td
-                    className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm"
-                    style={{ color: "#334155" }}
-                  >
-                    <span className="truncate block max-w-[100px] sm:max-w-none">
-                      {o.razorpayOrderId}
+                  Order ID
+                </th>
+                <th
+                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#003366" }}
+                >
+                  Date
+                </th>
+                <th
+                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#003366" }}
+                >
+                  Status
+                </th>
+                <th
+                  className="px-4 sm:px-6 py-4 text-right text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#003366" }}
+                >
+                  Total
+                </th>
+                <th
+                  className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                  style={{ color: "#003366" }}
+                >
+                  <div className="flex flex-col items-center">
+                    <span>Invoice</span>
+                    <span className="text-xs font-normal text-slate-400">
+                      Downloads on all devices
                     </span>
-                  </td>
-                  <td
-                    className="px-4 sm:px-6 py-4 text-sm"
-                    style={{ color: "#475569" }}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-teal-50">
+              {orders.length > 0 ? (
+                orders.map((o, idx) => (
+                  <tr
+                    key={o._id}
+                    className={`transition-colors hover:bg-teal-50/50 ${
+                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                    }`}
                   >
-                    {new Date(o.createdAt).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="px-4 sm:px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
-                        o.status
-                      )}`}
+                    <td
+                      className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm"
+                      style={{ color: "#334155" }}
                     >
-                      {o.status || "N/A"}
-                    </span>
-                  </td>
+                      <span className="truncate block max-w-[100px] sm:max-w-none">
+                        {o.razorpayOrderId}
+                      </span>
+                    </td>
+                    <td
+                      className="px-4 sm:px-6 py-4 text-sm"
+                      style={{ color: "#475569" }}
+                    >
+                      {new Date(o.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <span
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
+                          o.status
+                        )}`}
+                      >
+                        {o.status || "N/A"}
+                      </span>
+                    </td>
+                    <td
+                      className="px-4 sm:px-6 py-4 text-right font-bold text-base"
+                      style={{ color: "#008080" }}
+                    >
+                      ₹{(o.totalAmount / 100).toFixed(2)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleInvoiceDownload(o._id)}
+                        disabled={downloading === o._id}
+                        className="inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md disabled:opacity-50"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                          color: "white",
+                        }}
+                      >
+                        {downloading === o._id ? "Downloading..." : "Download"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
                   <td
-                    className="px-4 sm:px-6 py-4 text-right font-bold text-base"
-                    style={{ color: "#008080" }}
+                    colSpan="5"
+                    className="text-center py-12 text-slate-400 italic text-sm"
                   >
-                    ₹{(o.totalAmount / 100).toFixed(2)}
-                  </td>
-                  <td className="px-4 sm:px-6 py-4 text-center">
-                    <button
-                      onClick={() => handleInvoiceDownload(o._id)}
-                      disabled={downloading === o._id}
-                      className="inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md disabled:opacity-50"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #008080 0%, #003366 100%)",
-                        color: "white",
-                      }}
-                    >
-                      {downloading === o._id ? "Downloading..." : "Download"}
-                    </button>
+                    No orders found.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="text-center py-12 text-slate-400 italic text-sm"
-                >
-                  No orders found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <OrderModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
+      )}
     </main>
   );
 }
