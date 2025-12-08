@@ -1,11 +1,53 @@
 import { ArrowRight, CheckCircle, HandHeart, FileDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import Confetti from "react-confetti";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import {
+  downloadAuthenticatedFile,
+  generateInvoiceFilename,
+} from "../utils/downloadUtils";
 
 const PurchaseSuccessPage = () => {
   const params = new URLSearchParams(window.location.search);
   const paymentId = params.get("payment_id");
   const orderId = params.get("order_id");
+  const [downloading, setDownloading] = useState(false);
+
+  const handleInvoiceDownload = async () => {
+    if (!orderId) return;
+
+    setDownloading(true);
+    try {
+      const apiUrl = import.meta.env.PROD
+        ? "https://haleem-medicose-backend.onrender.com/api"
+        : import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+      const filename = generateInvoiceFilename(orderId);
+
+      console.log("Attempting download for order:", orderId);
+      await downloadAuthenticatedFile(
+        `${apiUrl}/orders/${orderId}/invoice`,
+        filename
+      );
+      toast.success("Invoice downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+
+      // Provide specific error messages
+      if (error.message.includes("Authentication failed")) {
+        toast.error("Session expired. Please log in again.");
+      } else if (error.message.includes("Access denied")) {
+        toast.error("You don't have permission to download this invoice.");
+      } else if (error.message.includes("not found")) {
+        toast.error("Invoice not found.");
+      } else {
+        toast.error(error.message || "Failed to download invoice");
+      }
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div
@@ -95,15 +137,10 @@ const PurchaseSuccessPage = () => {
 
           {paymentId && (
             <div className="text-center mb-6">
-              <a
-                href={`${
-                  import.meta.env.PROD
-                    ? "https://haleem-medicose-backend.onrender.com/api"
-                    : import.meta.env.VITE_API_URL ||
-                      "http://localhost:5000/api"
-                }/orders/${orderId}/invoice`}
-                target="_blank"
-                className="inline-flex items-center justify-center gap-2 font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 hover:shadow-lg"
+              <button
+                onClick={handleInvoiceDownload}
+                disabled={downloading}
+                className="inline-flex items-center justify-center gap-2 font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 hover:shadow-lg disabled:opacity-50"
                 style={{
                   background: "transparent",
                   border: "2px solid #008080",
@@ -111,8 +148,8 @@ const PurchaseSuccessPage = () => {
                 }}
               >
                 <FileDown size={18} />
-                Download Invoice (PDF)
-              </a>
+                {downloading ? "Downloading..." : "Download Invoice (PDF)"}
+              </button>
             </div>
           )}
 

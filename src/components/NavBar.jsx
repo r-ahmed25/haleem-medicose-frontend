@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -242,16 +241,18 @@ export default function NavBar() {
               {user && (
                 <Link
                   to={"/cart"}
-                  className="relative group text-white/90 hover:text-emerald-400 transition duration-300"
+                  className="relative group text-white/90 hover:text-emerald-400 transition duration-300 px-2 py-1 rounded-md hover:bg-white/5 flex items-center gap-1 min-w-0"
                 >
                   <FaShoppingCart
-                    className="inline-block mr-1 group-hover:text-emerald-400"
-                    size={20}
+                    className="group-hover:text-emerald-400 flex-shrink-0"
+                    size={18}
                   />
-                  <span className="hidden sm:inline">Cart</span>
+                  <span className="hidden sm:inline text-sm whitespace-nowrap">
+                    Cart
+                  </span>
                   {cart.length > 0 && (
-                    <span className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full px-2 py-0.5 text-xs">
-                      {cart.length}
+                    <span className="absolute -top-1 -left-2 bg-emerald-500 text-white rounded-full px-1.5 py-0.5 text-xs min-w-[18px] h-[18px] flex items-center justify-center border border-white/20 shadow-sm">
+                      {cart.length > 99 ? "99+" : cart.length}
                     </span>
                   )}
                 </Link>
@@ -525,6 +526,21 @@ export default function NavBar() {
                   </button>
                 </motion.li>
               </motion.ul>
+              
+              {/* Company Info Footer */}
+              <div className="mt-auto pt-8 pb-6 px-4 border-t border-white/10">
+                <div className="text-center">
+                  <p className="text-white/70 text-xs font-medium">
+                    Powered by
+                  </p>
+                  <p className="text-emerald-400 text-sm font-bold">
+                    CuttingEdge Enterprises
+                  </p>
+                  <p className="text-white/50 text-xs mt-1">
+                    Version 1.0
+                  </p>
+                </div>
+              </div>
             </motion.nav>
           </>
         )}

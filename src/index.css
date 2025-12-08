@@ -24,7 +24,11 @@ select {
   --primary: #008080; /* Teal */
   --secondary: #ffffff; /* White */
   --accent: #003366; /* Navy Blue */
-  --background: #f5f7fa; /* Light Gray */
+  --background: linear-gradient(
+    180deg,
+    #f8fffe 0%,
+    #f0f9f7 100%
+  ); /* CartPage Background */
   --highlight: #2ecc71; /* Emerald Green */
 }
 
@@ -36,6 +40,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  background: linear-gradient(180deg, #f8fffe 0%, #f0f9f7 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure the React root element also has the background */
+#root {
+  background: linear-gradient(180deg, #f8fffe 0%, #f0f9f7 100%);
+  min-height: 100vh;
 }
 
 /* Mobile viewport optimizations */

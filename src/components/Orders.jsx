@@ -2,12 +2,50 @@ import React, { useEffect, useState } from "react";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import {
+  downloadAuthenticatedFile,
+  generateInvoiceFilename,
+} from "../utils/downloadUtils";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("");
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const [downloading, setDownloading] = useState(null);
+
+  const handleInvoiceDownload = async (orderId) => {
+    setDownloading(orderId);
+    try {
+      const apiUrl = import.meta.env.PROD
+        ? "https://haleem-medicose-backend.onrender.com/api"
+        : import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+      const filename = generateInvoiceFilename(orderId);
+
+      console.log("Attempting admin download for order:", orderId);
+      await downloadAuthenticatedFile(
+        `${apiUrl}/orders/admin/${orderId}/invoice`,
+        filename
+      );
+      toast.success("Invoice downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+
+      // Provide specific error messages
+      if (error.message.includes("Authentication failed")) {
+        toast.error("Session expired. Please log in again.");
+      } else if (error.message.includes("Access denied")) {
+        toast.error("You don't have permission to download this invoice.");
+      } else if (error.message.includes("not found")) {
+        toast.error("Invoice not found.");
+      } else {
+        toast.error(error.message || "Failed to download invoice");
+      }
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -137,19 +175,15 @@ export default function Orders() {
                     ₹{(o.totalAmount / 100).toFixed(2)}
                   </td>
                   <td className="px-4 py-2 text-center">
-                    <a
-                      href={`${
-                        import.meta.env.PROD
-                          ? "https://haleem-medicose-backend.onrender.com/api"
-                          : import.meta.env.VITE_API_URL ||
-                            "http://localhost:5000/api"
-                      }/orders/admin/${o._id}/invoice`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-green-700 hover:underline"
+                    <button
+                      onClick={() => handleInvoiceDownload(o._id)}
+                      disabled={downloading === o._id}
+                      className="text-green-700 hover:underline disabled:opacity-50"
                     >
-                      Download PDF
-                    </a>
+                      {downloading === o._id
+                        ? "Downloading..."
+                        : "Download PDF"}
+                    </button>
                   </td>
                 </tr>
               ))

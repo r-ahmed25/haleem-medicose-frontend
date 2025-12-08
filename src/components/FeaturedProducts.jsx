@@ -1,12 +1,19 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "../styles/FeaturedProducts.css";
+import toast from "react-hot-toast";
+import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useAuthStore } from "../hooks/useAuthStore";
+import { useCartStore } from "../hooks/useCartStore";
+import formatCurrency from "../lib/formatCurrency";
 
 function FeaturedProducts({ products }) {
-  const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const { addToCart, checkProductStock } = useCartStore();
   const featured = products.filter((p) => p.isFeatured);
 
   // Fallback when no featured products
@@ -22,7 +29,7 @@ function FeaturedProducts({ products }) {
   }
 
   return (
-    <div className="featured-products-container cursor-pointer">
+    <div className="featured-products-container">
       <h2 className="title">Featured Products</h2>
       <Swiper
         modules={[Autoplay]}
@@ -38,20 +45,172 @@ function FeaturedProducts({ products }) {
       >
         {featured.map((product) => (
           <SwiperSlide key={product._id}>
-            <div
-              className="product-card"
-              onClick={() => navigate(`/product/${product._id}`)}
-            >
-              <img src={product.image} alt={product.name} />
-              <h3>{product.name}</h3>
-              <p className="price">₹{product.price}</p>
-              <span className="view-details">View Details</span>
-            </div>
+            <ProductCard product={product} />
           </SwiperSlide>
         ))}
       </Swiper>
     </div>
   );
 }
+
+// ProductCard component for FeaturedProducts
+const ProductCard = ({ product }) => {
+  const { user } = useAuthStore();
+  const { addToCart, checkProductStock } = useCartStore();
+  const [realTimeStock, setRealTimeStock] = useState(product.stock);
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
+
+  // Fetch real-time stock on mount and periodically
+  useEffect(() => {
+    const fetchStock = async () => {
+      if (product._id) {
+        setIsLoadingStock(true);
+        try {
+          const stockCheck = await checkProductStock(product._id, 1);
+          if (stockCheck.availableStock !== null) {
+            setRealTimeStock(stockCheck.availableStock);
+          }
+        } catch (error) {
+          console.error("Error fetching stock:", error);
+        } finally {
+          setIsLoadingStock(false);
+        }
+      }
+    };
+
+    fetchStock();
+
+    // Refresh stock every 30 seconds
+    const interval = setInterval(fetchStock, 30000);
+    return () => clearInterval(interval);
+  }, [product._id, checkProductStock]);
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error("Please login to add products to cart", { id: "login" });
+      return;
+    }
+
+    // Check stock before adding
+    if (realTimeStock !== null && realTimeStock <= 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
+    await addToCart(product);
+
+    // Refresh stock after adding to cart
+    if (product._id) {
+      const stockCheck = await checkProductStock(product._id, 1);
+      if (stockCheck.availableStock !== null) {
+        setRealTimeStock(stockCheck.availableStock);
+      }
+    }
+  };
+
+  const isOutOfStock = typeof realTimeStock === "number" && realTimeStock <= 0;
+
+  return (
+    <div
+      className="emerald-inset-card relative flex flex-col overflow-hidden rounded-xl transform hover:-translate-y-0.5 transition-all duration-150"
+      aria-labelledby={`prod-${product._id}`}
+    >
+      {/* Image (contained + centered) */}
+      <div className="relative mx-3 mt-3 h-40 overflow-hidden rounded-lg bg-mute-700/40 flex items-center justify-center p-2">
+        {/* image uses object-contain and centered to show full product */}
+        <img
+          src={product.thumbnail || product.image || ""}
+          alt={product.name || "product image"}
+          className="max-h-full max-w-full object-contain object-center"
+          onError={(e) => {
+            if (product.image && e.currentTarget.src !== product.image) {
+              e.currentTarget.src = product.image;
+            } else {
+              e.currentTarget.style.display = "none";
+            }
+          }}
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+
+        {/* Small price chip */}
+        <div className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-md bg-black/55 px-2 py-0.5 text-xs font-medium text-emerald-300 backdrop-blur-sm">
+          {formatCurrency(product.price)}
+        </div>
+
+        {isOutOfStock && (
+          <div className="absolute top-2 left-2 rounded-md bg-red-600 px-2 py-0.5 text-xs font-semibold text-white shadow">
+            Out of stock
+          </div>
+        )}
+      </div>
+
+      {/* Compact content */}
+      <div className="mt-3 px-3 pb-3 flex flex-col justify-between gap-2">
+        <div>
+          <h5
+            id={`prod-${product._id}`}
+            className="text-sm font-semibold tracking-tight text-white truncate"
+          >
+            {product.name}
+          </h5>
+
+          <p className="mt-1 text-xs text-gray-700 max-h-8 overflow-hidden line-clamp-2">
+            {`${product.description?.slice(0, 40)}...` ||
+              "No description available."}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-300">
+              {isLoadingStock
+                ? "Checking..."
+                : typeof realTimeStock === "number"
+                ? realTimeStock > 0
+                  ? `${realTimeStock} in stock`
+                  : "Out of stock"
+                : realTimeStock ?? "—"}
+            </span>
+            <span className="text-[10px] text-gray-500 mt-1">
+              SKU: {product._id?.slice(-6)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/product/${product._id}`}
+              className="inline-flex items-center justify-center rounded-md border border-gray-700/40 bg-transparent px-2 py-1 text-xs font-medium text-gray-700 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              aria-label={`View details for ${product.name}`}
+            >
+              Details
+            </Link>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                ${
+                  isOutOfStock
+                    ? "cursor-not-allowed bg-gray-700/50 opacity-70"
+                    : "bg-emerald-600 hover:bg-emerald-700"
+                }
+              `}
+              aria-disabled={isOutOfStock}
+              aria-label={
+                isOutOfStock
+                  ? `${product.name} is out of stock`
+                  : `Add ${product.name} to cart`
+              }
+            >
+              <ShoppingCart size={16} />
+              <span>{isOutOfStock ? "Unavailable" : "Add"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default FeaturedProducts;
