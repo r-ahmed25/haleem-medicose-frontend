@@ -8,13 +8,25 @@ import {
   FaSearch,
   FaFileUpload,
 } from "react-icons/fa";
-import { Upload, CheckCircle, XCircle } from "lucide-react";
-import { LogOut } from "lucide-react";
+import {
+  Upload,
+  CheckCircle,
+  XCircle,
+  Home,
+  Package,
+  FileText,
+  Phone,
+  User,
+  LayoutDashboard,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useCartStore } from "../hooks/useCartStore";
 import { formatLocation } from "../utils/locationFormatter";
 import PrescriptionUploadForm from "./PrescriptionUploadForm"; // 👈 add this
+import SearchSuggestions from "./SearchSuggestions";
 import "../styles/NavBar.css";
 
 const LOCATION_KEY = "hm_location";
@@ -30,6 +42,7 @@ export default function NavBar() {
   const [locationObj, setLocationObj] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false); // 👈 modal state
   const [status, setStatus] = useState("idle");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -144,7 +157,25 @@ export default function NavBar() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const q = String(search || "").trim();
-    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+    if (q) {
+      navigate(`/search?q=${encodeURIComponent(q)}`);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setShowSuggestions(e.target.value.length > 0);
+  };
+
+  const handleSuggestionSelect = (product) => {
+    navigate(`/product/${product.id}`);
+    setShowSuggestions(false);
+    setSearch("");
+  };
+
+  const handleCloseSuggestions = () => {
+    setShowSuggestions(false);
   };
 
   const handleLogout = () => {
@@ -230,53 +261,66 @@ export default function NavBar() {
 
           {/* Search row */}
           <div className="nav-search-row">
-            <form
-              className="search-form"
-              onSubmit={handleSearchSubmit}
-              style={{
-                background: "rgba(255, 255, 255, 0.15)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.25)",
-                borderRadius: "40px",
-                boxShadow: "0 10px 28px rgba(0, 0, 0, 0.1)",
-              }}
+            <div
+              className="search-container"
+              style={{ position: "relative", width: "100%", maxWidth: "920px" }}
             >
-              <button
-                type="button"
-                className="search-icon-left"
+              <form
+                className="search-form"
+                onSubmit={handleSearchSubmit}
                 style={{
-                  color: "rgba(255, 255, 255, 0.8)",
+                  background: "rgba(255, 255, 255, 0.15)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.25)",
+                  borderRadius: "40px",
+                  boxShadow: "0 10px 28px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <FaSearch />
-              </button>
-              <input
-                className="search-input"
-                type="text"
-                placeholder="Search for Medicines..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  color: "white",
-                  background: "transparent",
-                }}
+                <button
+                  type="button"
+                  className="search-icon-left"
+                  style={{
+                    color: "rgba(255, 255, 255, 0.8)",
+                  }}
+                >
+                  <FaSearch />
+                </button>
+                <input
+                  className="search-input"
+                  type="text"
+                  placeholder="Search for Medicines..."
+                  value={search}
+                  onChange={handleSearchChange}
+                  onFocus={() => search.length > 0 && setShowSuggestions(true)}
+                  style={{
+                    color: "white",
+                    background: "transparent",
+                  }}
+                />
+                {/* File Upload icon opens modal */}
+                <button
+                  type="button"
+                  onClick={() => setShowUploadModal(true)} // 👈 open modal
+                  className="camera-icon fileupload text-sm sm:text-2xl cursor-pointer flex items-center gap-1 px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200"
+                  title="Upload Prescription"
+                  style={{
+                    color: "rgba(46, 204, 113, 0.95)",
+                  }}
+                >
+                  <Upload size={16} />
+                  <span className="text-emerald-400 font-medium hidden sm:inline">
+                    Upload
+                  </span>
+                </button>
+              </form>
+
+              {/* Search Suggestions */}
+              <SearchSuggestions
+                query={search}
+                onSelect={handleSuggestionSelect}
+                onClose={handleCloseSuggestions}
               />
-              {/* File Upload icon opens modal */}
-              <button
-                type="button"
-                onClick={() => setShowUploadModal(true)} // 👈 open modal
-                className="camera-icon fileupload text-sm sm:text-2xl cursor-pointer flex items-center gap-1 px-3 py-2 rounded-full hover:bg-white/10 transition-all duration-200"
-                title="Upload Prescription"
-                style={{
-                  color: "rgba(46, 204, 113, 0.95)",
-                }}
-              >
-                <Upload size={16} />
-                <span className="text-emerald-400 font-medium hidden sm:inline">
-                  Upload
-                </span>
-              </button>
-            </form>
+            </div>
           </div>
         </div>
       </header>
@@ -348,8 +392,13 @@ export default function NavBar() {
                     visible: { opacity: 1, x: 0 },
                   }}
                 >
-                  <Link to="/" onClick={() => setMenuOpen(false)}>
-                    Home
+                  <Link
+                    to="/"
+                    onClick={() => setMenuOpen(false)}
+                    className="menu-item-with-icon"
+                  >
+                    <span>Home</span>
+                    <Home size={16} className="menu-item-icon" />
                   </Link>
                 </motion.li>
                 <motion.li
@@ -359,8 +408,13 @@ export default function NavBar() {
                   }}
                 >
                   {user?.role !== "admin" && (
-                    <Link to="/orders" onClick={() => setMenuOpen(false)}>
-                      My Orders
+                    <Link
+                      to="/orders"
+                      onClick={() => setMenuOpen(false)}
+                      className="menu-item-with-icon"
+                    >
+                      <span>My Orders</span>
+                      <Package size={16} className="menu-item-icon" />
                     </Link>
                   )}
                 </motion.li>
@@ -374,8 +428,10 @@ export default function NavBar() {
                     <Link
                       to="/prescriptions"
                       onClick={() => setMenuOpen(false)}
+                      className="menu-item-with-icon"
                     >
-                      My Prescriptions
+                      <span>My Prescriptions</span>
+                      <FileText size={16} className="menu-item-icon" />
                     </Link>
                   )}
                 </motion.li>
@@ -386,8 +442,13 @@ export default function NavBar() {
                   }}
                 >
                   {user?.role !== "admin" && (
-                    <Link to="/contact" onClick={() => setMenuOpen(false)}>
-                      Contact
+                    <Link
+                      to="/contact"
+                      onClick={() => setMenuOpen(false)}
+                      className="menu-item-with-icon"
+                    >
+                      <span>Contact</span>
+                      <Phone size={16} className="menu-item-icon" />
                     </Link>
                   )}
                 </motion.li>
@@ -397,8 +458,13 @@ export default function NavBar() {
                     visible: { opacity: 1, x: 0 },
                   }}
                 >
-                  <Link to="/update-profile" onClick={() => setMenuOpen(false)}>
-                    Account
+                  <Link
+                    to="/update-profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="menu-item-with-icon"
+                  >
+                    <span>Account</span>
+                    <User size={16} className="menu-item-icon" />
                   </Link>
                 </motion.li>
                 <motion.li
@@ -408,8 +474,13 @@ export default function NavBar() {
                   }}
                 >
                   {user?.role === "admin" && (
-                    <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
-                      Dashboard
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="menu-item-with-icon"
+                    >
+                      <span>Dashboard</span>
+                      <LayoutDashboard size={16} className="menu-item-icon" />
                     </Link>
                   )}
                 </motion.li>

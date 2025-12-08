@@ -15,6 +15,14 @@
   overflow-x: hidden;
 }
 
+/* Ensure navbar creates a proper stacking context */
+.navbar,
+.nav-search-row,
+.search-container {
+  position: relative;
+  z-index: 1000;
+}
+
 /* Top row */
 .nav-top {
   display: flex;
@@ -307,6 +315,10 @@
     text-overflow: ellipsis;
   }
 
+  .search-container {
+    max-width: 100%;
+  }
+
   .search-form {
     padding: 8px 12px;
     border-radius: 25px;
@@ -404,6 +416,126 @@
 @media (min-width: 521px) {
   .search-form {
     max-width: 900px;
+  }
+}
+
+/* Menu items with icons */
+.menu-item-with-icon {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between !important;
+  padding: 14px 16px !important;
+}
+
+.menu-item-with-icon span {
+  flex: 1;
+  text-align: left;
+}
+
+.menu-item-icon {
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.mobile-menu-list li a:hover .menu-item-icon {
+  color: var(--secondary);
+  transform: translateX(2px);
+}
+
+/* Adjust for smaller screens */
+@media (max-width: 520px) {
+  .menu-item-with-icon {
+    padding: 12px 14px !important;
+  }
+
+  .menu-item-icon {
+    margin-left: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .menu-item-with-icon {
+    padding: 10px 12px !important;
+  }
+
+  .menu-item-icon {
+    margin-left: 4px;
+  }
+}
+
+/* Search container enhancements */
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  z-index: 10000;
+}
+
+.search-container .search-form {
+  position: relative;
+  z-index: 10;
+}
+
+/* Enhanced search suggestions styling (Google-like) */
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 2147483647;
+  max-height: 400px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  /* Force stacking context */
+  transform: translateZ(0);
+  will-change: transform;
+  /* Ensure it appears above everything */
+  pointer-events: auto;
+}
+
+/* Smooth scrolling for suggestions */
+.search-suggestions > div {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.search-suggestions > div::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-suggestions > div::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-suggestions > div::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.search-suggestions > div::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Animation for suggestion appearance */
+.search-suggestions {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

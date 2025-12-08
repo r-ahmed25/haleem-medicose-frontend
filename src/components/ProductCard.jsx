@@ -15,7 +15,6 @@ const ProductCard = ({ product }) => {
       return;
     }
     addToCart(product);
-    toast.success("Added to cart");
   };
 
   const isOutOfStock = typeof product.stock === "number" && product.stock <= 0;
