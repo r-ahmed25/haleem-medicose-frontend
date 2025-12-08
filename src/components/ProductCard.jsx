@@ -1,23 +1,66 @@
 import toast from "react-hot-toast";
 import { ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useCartStore } from "../hooks/useCartStore";
 import formatCurrency from "../lib/formatCurrency";
 
 const ProductCard = ({ product }) => {
   const { user } = useAuthStore();
-  const { addToCart } = useCartStore();
+  const { addToCart, checkProductStock } = useCartStore();
+  const [realTimeStock, setRealTimeStock] = useState(product.stock);
+  const [isLoadingStock, setIsLoadingStock] = useState(false);
 
-  const handleAddToCart = () => {
+  // Fetch real-time stock on mount and periodically
+  useEffect(() => {
+    const fetchStock = async () => {
+      if (product._id) {
+        setIsLoadingStock(true);
+        try {
+          const stockCheck = await checkProductStock(product._id, 1);
+          if (stockCheck.availableStock !== null) {
+            setRealTimeStock(stockCheck.availableStock);
+          }
+        } catch (error) {
+          console.error("Error fetching stock:", error);
+        } finally {
+          setIsLoadingStock(false);
+        }
+      }
+    };
+
+    fetchStock();
+
+    // Refresh stock every 30 seconds
+    const interval = setInterval(fetchStock, 30000);
+    return () => clearInterval(interval);
+  }, [product._id, checkProductStock]);
+
+  const handleAddToCart = async () => {
     if (!user) {
       toast.error("Please login to add products to cart", { id: "login" });
       return;
     }
-    addToCart(product);
+
+    // Check stock before adding
+    if (realTimeStock !== null && realTimeStock <= 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
+    await addToCart(product);
+
+    // Refresh stock after adding to cart
+    if (product._id) {
+      const stockCheck = await checkProductStock(product._id, 1);
+      if (stockCheck.availableStock !== null) {
+        setRealTimeStock(stockCheck.availableStock);
+      }
+    }
   };
 
-  const isOutOfStock = typeof product.stock === "number" && product.stock <= 0;
+  const isOutOfStock = typeof realTimeStock === "number" && realTimeStock <= 0;
 
   return (
     <div
@@ -73,11 +116,13 @@ const ProductCard = ({ product }) => {
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col">
             <span className="text-xs text-gray-300">
-              {typeof product.stock === "number"
-                ? product.stock > 0
-                  ? `${product.stock} in stock`
+              {isLoadingStock
+                ? "Checking..."
+                : typeof realTimeStock === "number"
+                ? realTimeStock > 0
+                  ? `${realTimeStock} in stock`
                   : "Out of stock"
-                : product.stock ?? "—"}
+                : realTimeStock ?? "—"}
             </span>
             <span className="text-[10px] text-gray-500 mt-1">
               SKU: {product._id?.slice(-6)}

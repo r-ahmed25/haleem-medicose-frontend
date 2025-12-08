@@ -192,8 +192,13 @@ export default function MyOrders() {
                     ₹{(o.totalAmount / 100).toFixed(2)}
                   </td>
                   <td className="px-4 sm:px-6 py-4 text-center">
-                    <Link
-                      to={`/api/orders/${o._id}/invoice`}
+                    <a
+                      href={`${
+                        import.meta.env.PROD
+                          ? "https://haleem-medicose-backend.onrender.com/api"
+                          : import.meta.env.VITE_API_URL ||
+                            "http://localhost:5000/api"
+                      }/orders/${o._id}/invoice`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
@@ -204,7 +209,7 @@ export default function MyOrders() {
                       }}
                     >
                       Download
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { useProductStore } from "./useProductStore";
 
 export const useCartStore = create((set, get) => ({
   cart: [],
@@ -39,6 +40,7 @@ export const useCartStore = create((set, get) => ({
       // The response should be an array of cart items with product details
       const cartItems = Array.isArray(res.data) ? res.data : [];
       set({ cart: cartItems });
+
       get().calculateTotals();
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -46,6 +48,53 @@ export const useCartStore = create((set, get) => ({
       toast.error(
         error.response?.data?.message || "Failed to fetch cart items"
       );
+    }
+  },
+
+  // Check stock status for all cart items and show warnings
+  checkCartStockStatus: async (cartItems) => {
+    try {
+      const stockWarnings = [];
+
+      for (const item of cartItems) {
+        if (item.productId && item.quantity > 0) {
+          const stockCheck = await get().checkProductStock(
+            item.productId,
+            item.quantity
+          );
+
+          if (!stockCheck.isStockSufficient) {
+            stockWarnings.push({
+              itemName: item.name,
+              requestedQuantity: item.quantity,
+              availableStock: stockCheck.availableStock,
+            });
+          }
+        }
+      }
+
+      // Show warnings for items with insufficient stock
+      if (stockWarnings.length > 0) {
+        stockWarnings.forEach((warning, index) => {
+          if (warning.availableStock === 0) {
+            setTimeout(() => {
+              toast.error(
+                `"${warning.itemName}" is out of stock and has been removed from your cart`,
+                { duration: 5000 }
+              );
+            }, index * 500);
+          } else {
+            setTimeout(() => {
+              toast.error(
+                `Only ${warning.availableStock} "${warning.itemName}" available. Please adjust your quantity.`,
+                { duration: 4000 }
+              );
+            }, index * 500);
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error checking cart stock status:", error);
     }
   },
   clearCart: async () => {
@@ -81,11 +130,20 @@ export const useCartStore = create((set, get) => ({
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to add product to cart";
-      toast.error(errorMessage);
+
+      // Check if it's a stock-related error from backend
+      const backendAvailableStock = error.response?.data?.availableStock;
+      if (backendAvailableStock !== undefined) {
+        toast.error(`Only ${backendAvailableStock} available in stock.`, {
+          duration: 4000,
+        });
+      } else {
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to add product to cart";
+        toast.error(errorMessage);
+      }
     }
   },
   removeFromCart: async (itemId) => {
@@ -114,6 +172,29 @@ export const useCartStore = create((set, get) => ({
       );
     }
   },
+  // Check product stock in real-time
+  checkProductStock: async (productId, requestedQuantity) => {
+    try {
+      const response = await api.get(`/products/${productId}`);
+      const product = response.data;
+      const availableStock = product.stock || 0;
+
+      return {
+        availableStock,
+        isStockSufficient: availableStock >= requestedQuantity,
+        product,
+      };
+    } catch (error) {
+      console.error("Error checking product stock:", error);
+      // If we can't check stock, allow the operation but warn user
+      return {
+        availableStock: null,
+        isStockSufficient: true, // Default to allowing
+        product: null,
+      };
+    }
+  },
+
   updateQuantity: async (itemId, quantity) => {
     itemId = itemId.toString();
     if (!itemId || !itemId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -126,6 +207,18 @@ export const useCartStore = create((set, get) => ({
         return;
       }
 
+      // Get current cart item
+      const currentCart = get().cart;
+      const cartItem = currentCart.find((item) => item.cartItemId === itemId);
+
+      if (!cartItem) {
+        toast.error("Cart item not found");
+        return;
+      }
+
+      const isIncreasing = quantity > cartItem.quantity;
+
+      // Let the backend handle stock validation - it has the most accurate data
       const response = await api.put(`/cart/${itemId}`, { quantity });
 
       if (response.data.cartItems) {
@@ -138,10 +231,50 @@ export const useCartStore = create((set, get) => ({
         }));
       }
 
+      // Show success toast with current stock info from backend response
+      const updatedItem = response.data.cartItems?.find(
+        (item) =>
+          item.cartItemId === itemId || item.cartItemId?.toString() === itemId
+      );
+      const currentStock = updatedItem?.stock;
+
+      if (
+        isIncreasing &&
+        currentStock !== undefined &&
+        currentStock <= 5 &&
+        currentStock > 0
+      ) {
+        toast.success(`Quantity updated! Only ${currentStock} left in stock`, {
+          duration: 3000,
+        });
+      } else {
+        toast.success("Quantity updated", { duration: 2000 });
+      }
+
       get().calculateTotals();
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast.error(error.response?.data?.message || "Failed to update quantity");
+
+      // Check if it's a stock-related error from backend
+      const backendAvailableStock = error.response?.data?.availableStock;
+      if (backendAvailableStock !== undefined) {
+        toast.error(
+          `Only ${backendAvailableStock} available in stock. Please adjust your quantity.`,
+          { duration: 4000 }
+        );
+      } else if (
+        error.response?.data?.message?.toLowerCase().includes("stock") ||
+        error.response?.data?.message?.toLowerCase().includes("inventory")
+      ) {
+        toast.error(
+          error.response.data.message || "Insufficient stock available",
+          { duration: 4000 }
+        );
+      } else {
+        toast.error(
+          error.response?.data?.message || "Failed to update quantity"
+        );
+      }
     }
   },
   calculateTotals: () => {
@@ -164,5 +297,145 @@ export const useCartStore = create((set, get) => ({
     const finalTotal = isNaN(total) ? 0 : total;
 
     set({ subtotal: finalSubtotal, total: finalTotal });
+  },
+
+  // Refresh stock data for all cart items periodically
+  refreshCartStockData: async () => {
+    try {
+      const { cart } = get();
+      const updatedCart = [];
+
+      for (const item of cart) {
+        if (item.productId) {
+          try {
+            const stockCheck = await get().checkProductStock(
+              item.productId,
+              item.quantity
+            );
+            updatedCart.push({
+              ...item,
+              availableStock: stockCheck.availableStock,
+              stockStatus: stockCheck.isStockSufficient
+                ? "sufficient"
+                : "insufficient",
+            });
+          } catch (error) {
+            // If stock check fails, keep original item
+            updatedCart.push(item);
+          }
+        } else {
+          updatedCart.push(item);
+        }
+      }
+
+      set({ cart: updatedCart });
+    } catch (error) {
+      console.error("Error refreshing cart stock data:", error);
+    }
+  },
+
+  // Decrease stock for ordered items
+  decreaseStockForOrder: async (orderItems) => {
+    try {
+      console.log(
+        `[DECREASE_STOCK_FOR_ORDER] Starting stock decrease for ${orderItems.length} items`
+      );
+
+      const stockUpdatePromises = orderItems.map(async (item, index) => {
+        console.log(
+          `[DECREASE_STOCK_FOR_ORDER] Processing item ${index + 1}/${
+            orderItems.length
+          }:`,
+          {
+            productId: item.productId,
+            quantity: item.quantity,
+            name: item.name,
+          }
+        );
+
+        if (item.productId && item.quantity > 0) {
+          try {
+            console.log(
+              `[DECREASE_STOCK_FOR_ORDER] Calling API for product ${item.productId}`
+            );
+            const response = await api.put(
+              `/products/${item.productId}/decrease-stock`,
+              {
+                quantity: item.quantity,
+              }
+            );
+            console.log(
+              `[DECREASE_STOCK_FOR_ORDER] API response for ${item.productId}:`,
+              response.data
+            );
+            return {
+              success: true,
+              productId: item.productId,
+              data: response.data,
+            };
+          } catch (error) {
+            console.error(
+              `[DECREASE_STOCK_FOR_ORDER] Error decreasing stock for product ${item.productId}:`,
+              {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                url: error.config?.url,
+              }
+            );
+            return { success: false, productId: item.productId, error };
+          }
+        }
+        return {
+          success: true,
+          productId: item.productId,
+          message: "Skipped (no productId or quantity)",
+        };
+      });
+
+      const results = await Promise.all(stockUpdatePromises);
+      const failedUpdates = results.filter((result) => !result.success);
+
+      console.log(`[DECREASE_STOCK_FOR_ORDER] Results:`, {
+        total: results.length,
+        successful: results.length - failedUpdates.length,
+        failed: failedUpdates.length,
+        results: results,
+      });
+
+      if (failedUpdates.length > 0) {
+        console.warn(
+          "[DECREASE_STOCK_FOR_ORDER] Some stock updates failed:",
+          failedUpdates
+        );
+        toast.error(
+          "Order placed successfully, but some stock updates failed. Please contact support."
+        );
+      } else {
+        console.log(
+          "[DECREASE_STOCK_FOR_ORDER] All stock updates successful - clearing cart"
+        );
+        toast.success("Order confirmed! Stock updated successfully.", {
+          duration: 3000,
+        });
+
+        // Clear the cart since order was successful
+        set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+
+        // Also refresh cart stock data to update any remaining items
+        get().refreshCartStockData();
+      }
+
+      return results;
+    } catch (error) {
+      console.error(
+        "[DECREASE_STOCK_FOR_ORDER] Error in bulk stock update:",
+        error
+      );
+      toast.error(
+        "Order placed successfully, but stock update failed. Please contact support."
+      );
+    }
   },
 }));

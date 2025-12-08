@@ -15,7 +15,9 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await api.get(`/orders/allorders?page=${page}&status=${filter}`);
+      const res = await api.get(
+        `/orders/allorders?page=${page}&status=${filter}`
+      );
       if (res.data?.success) {
         setOrders(res.data.orders || []);
         setPagination(res.data.pagination);
@@ -28,7 +30,9 @@ export default function Orders() {
 
   const updateStatus = async (orderId, newStatus) => {
     try {
-      const res = await api.put(`/orders/${orderId}/status`, { status: newStatus });
+      const res = await api.put(`/orders/${orderId}/status`, {
+        status: newStatus,
+      });
       if (res.data?.success) {
         toast.success("Status updated");
         fetchOrders(); // refresh
@@ -54,7 +58,9 @@ export default function Orders() {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-xl font-semibold mb-4 text-emerald-700">All Orders</h2>
+      <h2 className="text-xl font-semibold mb-4 text-emerald-700">
+        All Orders
+      </h2>
 
       {/* FILTER + PAGINATION */}
       <div className="flex justify-between items-center mb-4">
@@ -107,7 +113,9 @@ export default function Orders() {
             {orders.length > 0 ? (
               orders.map((o) => (
                 <tr key={o._id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2 font-mono text-sm">{o.razorpayOrderId}</td>
+                  <td className="px-4 py-2 font-mono text-sm">
+                    {o.razorpayOrderId}
+                  </td>
                   <td className="px-4 py-2">{o.user?.fullName || "Guest"}</td>
                   <td className="px-4 py-2">
                     {new Date(o.createdAt).toLocaleDateString()}
@@ -129,20 +137,28 @@ export default function Orders() {
                     ₹{(o.totalAmount / 100).toFixed(2)}
                   </td>
                   <td className="px-4 py-2 text-center">
-                    <Link
-                      to={`/api/orders/admin/${o._id}/invoice`}
+                    <a
+                      href={`${
+                        import.meta.env.PROD
+                          ? "https://haleem-medicose-backend.onrender.com/api"
+                          : import.meta.env.VITE_API_URL ||
+                            "http://localhost:5000/api"
+                      }/orders/admin/${o._id}/invoice`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-green-700 hover:underline"
                     >
                       Download PDF
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500 italic">
+                <td
+                  colSpan="6"
+                  className="text-center py-6 text-gray-500 italic"
+                >
                   No orders found.
                 </td>
               </tr>

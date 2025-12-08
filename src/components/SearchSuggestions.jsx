@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, X, Clock, TrendingUp, Package } from "lucide-react";
+import {
+  Search,
+  X,
+  Clock,
+  TrendingUp,
+  Package,
+  AlertTriangle,
+  Zap,
+} from "lucide-react";
 import { useProductStore } from "../hooks/useProductStore";
 import { createPortal } from "react-dom";
 
@@ -78,6 +86,51 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
         part
       )
     );
+  };
+
+  // Get stock status with visual indicators
+  const getStockInfo = (stock) => {
+    if (stock <= 0) {
+      return {
+        status: "out",
+        text: "Out of Stock",
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        icon: <X size={12} />,
+        message: "Currently unavailable",
+      };
+    } else if (stock <= 5) {
+      return {
+        status: "low",
+        text: `Only ${stock} left`,
+        color: "text-orange-700",
+        bgColor: "bg-orange-50",
+        borderColor: "border-orange-200",
+        icon: <AlertTriangle size={12} />,
+        message: `Hurry! Only ${stock} remaining`,
+      };
+    } else if (stock <= 10) {
+      return {
+        status: "medium",
+        text: `${stock} in stock`,
+        color: "text-yellow-700",
+        bgColor: "bg-yellow-50",
+        borderColor: "border-yellow-200",
+        icon: <Zap size={12} />,
+        message: `Good availability`,
+      };
+    } else {
+      return {
+        status: "high",
+        text: `${stock} in stock`,
+        color: "text-green-700",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        icon: <Package size={12} />,
+        message: "In stock",
+      };
+    }
   };
 
   // Fetch products on component mount if not already loaded
@@ -197,17 +250,17 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
     const handleReposition = () => {
       // Force re-render to update position
       if (isOpen || loading) {
-        setIsOpen(prev => !prev);
+        setIsOpen((prev) => !prev);
         setTimeout(() => setIsOpen(true), 0);
       }
     };
 
-    window.addEventListener('resize', handleReposition);
-    window.addEventListener('scroll', handleReposition, true);
+    window.addEventListener("resize", handleReposition);
+    window.addEventListener("scroll", handleReposition, true);
 
     return () => {
-      window.removeEventListener('resize', handleReposition);
-      window.removeEventListener('scroll', handleReposition, true);
+      window.removeEventListener("resize", handleReposition);
+      window.removeEventListener("scroll", handleReposition, true);
     };
   }, [isOpen, loading]);
 
@@ -301,53 +354,58 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
             </div>
             {suggestions
               .filter((s) => s.type === "product")
-              .map((product, index) => (
-                <button
-                  key={product.id}
-                  onClick={() => handleSuggestionClick(product)}
-                  className={`w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-all duration-150 text-left group ${
-                    selectedIndex === index
-                      ? "bg-emerald-50 border border-emerald-200"
-                      : ""
-                  }`}
-                >
-                  <div className="relative">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-10 h-10 object-contain rounded-lg border border-gray-200"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    {product.stock <= 0 && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                        <span className="text-xs text-white font-medium">
-                          Out
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-700">
-                      {highlightMatch(product.name, query)}
+              .map((product, index) => {
+                const stockInfo = getStockInfo(product.stock);
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => handleSuggestionClick(product)}
+                    className={`w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-all duration-150 text-left group ${
+                      selectedIndex === index
+                        ? "bg-emerald-50 border border-emerald-200"
+                        : ""
+                    }`}
+                  >
+                    <div className="relative">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-10 h-10 object-contain rounded-lg border border-gray-200"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                      {product.stock <= 0 && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-white font-medium">
+                            Out
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="text-sm font-semibold text-emerald-600">
-                        ₹{product.price}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-700">
+                        {highlightMatch(product.name, query)}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        • {product.category}
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <div className="text-sm font-semibold text-emerald-600">
+                          ₹{product.price}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          • {product.category}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {product.stock > 0 && (
-                    <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                      In Stock
+                    <div
+                      className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${stockInfo.bgColor} ${stockInfo.color} border ${stockInfo.borderColor}`}
+                      title={stockInfo.message}
+                    >
+                      {stockInfo.icon}
+                      {stockInfo.text}
                     </div>
-                  )}
-                </button>
-              ))}
+                  </button>
+                );
+              })}
           </div>
         )}
 

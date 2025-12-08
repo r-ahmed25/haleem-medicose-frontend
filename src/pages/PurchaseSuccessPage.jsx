@@ -95,8 +95,13 @@ const PurchaseSuccessPage = () => {
 
           {paymentId && (
             <div className="text-center mb-6">
-              <Link
-                to={`/api/orders/${orderId}/invoice`}
+              <a
+                href={`${
+                  import.meta.env.PROD
+                    ? "https://haleem-medicose-backend.onrender.com/api"
+                    : import.meta.env.VITE_API_URL ||
+                      "http://localhost:5000/api"
+                }/orders/${orderId}/invoice`}
                 target="_blank"
                 className="inline-flex items-center justify-center gap-2 font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 hover:shadow-lg"
                 style={{
@@ -107,7 +112,7 @@ const PurchaseSuccessPage = () => {
               >
                 <FileDown size={18} />
                 Download Invoice (PDF)
-              </Link>
+              </a>
             </div>
           )}
 

@@ -10,7 +10,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const OrderSummary = () => {
-  const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
+  const {
+    total,
+    subtotal,
+    coupon,
+    isCouponApplied,
+    cart,
+    decreaseStockForOrder,
+  } = useCartStore();
   const clearCart = useCartStore((state) => state.clearCart);
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -120,6 +127,14 @@ const OrderSummary = () => {
               );
             }
             if (verifyRes.success) {
+              // Decrease stock for ordered items
+              try {
+                await decreaseStockForOrder(cart);
+              } catch (stockError) {
+                console.error("Stock update failed:", stockError);
+                // Don't block the order completion for stock update failures
+              }
+
               window.dispatchEvent(new CustomEvent("hm:cartClearRequested"));
               navigate(
                 `/purchase-success?payment_id=${pendingPayment.payment_id}&order_id=${verifyRes.orderId}`
