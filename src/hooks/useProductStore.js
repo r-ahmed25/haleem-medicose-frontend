@@ -123,6 +123,7 @@ export const useProductStore = create((set, get) => ({
   updateProduct: async (productId, productData) => {
     set({ loading: true });
     try {
+      // Backend now handles mobile timeouts properly, use default axios timeout
       const response = await api.put(`/products/${productId}`, productData);
       set((prevProducts) => {
         const currentProducts = Array.isArray(prevProducts.products)
@@ -137,11 +138,45 @@ export const useProductStore = create((set, get) => ({
           loading: false,
         };
       });
-      toast.success("Product updated successfully");
+
+      const isMobile =
+        window.innerWidth <= 768 ||
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+      toast.success(
+        isMobile
+          ? "Product updated successfully on mobile!"
+          : "Product updated successfully"
+      );
       return response.data;
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response?.data?.error || "Failed to update product");
+
+      const isMobile =
+        window.innerWidth <= 768 ||
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+
+      if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+        if (isMobile) {
+          toast.error(
+            "Mobile update timed out. The server is processing your image, please wait..."
+          );
+        } else {
+          toast.error("Update timed out. Please try again.");
+        }
+      } else if (error.response?.status === 413) {
+        toast.error("Image too large. Please select a smaller image.");
+      } else if (error.response?.status === 408) {
+        toast.error(
+          "Server timeout. Please try with a smaller image or check your connection."
+        );
+      } else {
+        toast.error(error.response?.data?.error || "Failed to update product");
+      }
+
       throw error;
     }
   },

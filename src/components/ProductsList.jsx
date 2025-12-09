@@ -88,20 +88,81 @@ const ProductsList = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  // Mobile-specific image compression function
+  const compressImageForMobile = (file, maxWidth = 800, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve(compressedDataUrl);
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (limit to 2MB for base64)
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Image is too large. Please select an image smaller than 2MB.");
-        return;
+      const isMobile =
+        window.innerWidth <= 768 ||
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+
+      // Mobile: More aggressive compression and smaller size limit
+      if (isMobile) {
+        if (file.size > 5 * 1024 * 1024) {
+          // 5MB for mobile
+          toast.error(
+            "Image is too large for mobile. Please select an image smaller than 5MB."
+          );
+          return;
+        }
+
+        try {
+          toast.loading("Compressing image for mobile...", {
+            id: "image-compress",
+          });
+          const compressedImage = await compressImageForMobile(file, 600, 0.6);
+          setEditForm({ ...editForm, image: compressedImage });
+          toast.success("Image compressed for mobile", {
+            id: "image-compress",
+          });
+        } catch (error) {
+          console.error("Image compression failed:", error);
+          toast.error("Failed to process image", { id: "image-compress" });
+        }
+      } else {
+        // Desktop: Original logic
+        if (file.size > 2 * 1024 * 1024) {
+          toast.error(
+            "Image is too large. Please select an image smaller than 2MB."
+          );
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setEditForm({ ...editForm, image: reader.result });
+        };
+        reader.readAsDataURL(file);
       }
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditForm({ ...editForm, image: reader.result });
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -363,6 +424,11 @@ const ProductsList = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Product Image
+                {isMobile && (
+                  <span className="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                    Mobile Optimized
+                  </span>
+                )}
               </label>
               <div className="flex items-center gap-4">
                 {editForm.image && (
@@ -385,8 +451,14 @@ const ProductsList = () => {
                     className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-200 transition-all"
                   >
                     <Upload className="h-4 w-4" />
-                    Change Image
+                    {isMobile ? "Change Image (Auto-compress)" : "Change Image"}
                   </label>
+                  {isMobile && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Images are automatically compressed for faster mobile
+                      upload
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
