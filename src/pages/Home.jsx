@@ -1,5 +1,5 @@
 // src/pages/Home.js
-import React, { use, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import Hero from "../components/Hero";
 import Categories from "../components/Categories";
 import FeaturedProducts from "../components/FeaturedProducts";
@@ -54,6 +54,16 @@ function Home({ searchQuery = "" }) {
       return categoryMatches && searchMatches;
     });
   }, [allProducts, q, selectedCategory]);
+
+  // Scroll to products section when category is selected
+  useEffect(() => {
+    if (selectedCategory !== "All") {
+      const element = document.getElementById("products-section");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [selectedCategory]);
 
   return (
     <div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -193,6 +194,19 @@ export default function MyOrders() {
         background: "linear-gradient(180deg, #f8fffe 0%, #f0f9f7 100%)",
       }}
     >
+      <div className="mb-4 flex justify-start">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
+            color: "#008080",
+          }}
+        >
+          ← Home
+        </Link>
+      </div>
       <h1
         className="text-2xl sm:text-3xl font-bold mb-6"
         style={{
@@ -205,12 +219,7 @@ export default function MyOrders() {
       </h1>
 
       {/* Loading Spinner */}
-      {loading && (
-        <LoadingSpinner 
-          size="large" 
-          text="Loading your orders..." 
-        />
-      )}
+      {loading && <LoadingSpinner size="large" text="Loading your orders..." />}
 
       {/* Main Content */}
       {!loading && (
@@ -415,7 +424,9 @@ export default function MyOrders() {
                               color: "white",
                             }}
                           >
-                            {downloading === o._id ? "Downloading..." : "Download"}
+                            {downloading === o._id
+                              ? "Downloading..."
+                              : "Download"}
                           </button>
                         </td>
                       </tr>

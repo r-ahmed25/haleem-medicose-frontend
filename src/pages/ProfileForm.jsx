@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
@@ -42,6 +43,19 @@ export default function ProfileForm() {
 
   return (
     <div className="min-h-screen py-16 px-4">
+      <div className="mb-4 flex justify-start">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
+            color: "#008080",
+          }}
+        >
+          ← Home
+        </Link>
+      </div>
       {/* Enhanced center card with theme-matching gradient background */}
       <div
         className="max-w-2xl mx-auto p-8 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"

@@ -1,5 +1,6 @@
 // ContactForm.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 
@@ -51,17 +52,30 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="py-8 px-2">
-      {/* Enhanced center card with theme-matching gradient background */}
-      <div
-        className="max-w-5xl mx-auto p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
-          boxShadow:
-            "0 25px 50px rgba(0, 128, 128, 0.25), 0 15px 35px rgba(0, 51, 102, 0.2)",
-        }}
-      >
+    <>
+      <div className="mb-4 flex justify-start px-2">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+          style={{
+            background: "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
+            color: "#008080",
+          }}
+        >
+          ← Home
+        </Link>
+      </div>
+      <section className="py-8 px-2">
+        {/* Enhanced center card with theme-matching gradient background */}
+        <div
+          className="max-w-5xl mx-auto p-10 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(0, 128, 128, 0.95) 0%, rgba(0, 51, 102, 0.95) 50%, rgba(0, 100, 100, 0.95) 100%)",
+            boxShadow:
+              "0 25px 50px rgba(0, 128, 128, 0.25), 0 15px 35px rgba(0, 51, 102, 0.2)",
+          }}
+        >
         {/* Decorative gradient overlay */}
         <div
           className="absolute inset-0 opacity-30"
@@ -202,5 +216,6 @@ export default function ContactForm() {
         </div>
       </div>
     </section>
+    </>
   );
 }
