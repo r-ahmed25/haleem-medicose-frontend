@@ -11,21 +11,17 @@ function Home({ searchQuery = "" }) {
   const { products, loading } = useProductStore();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // normalize search for comparison
   const q = String(searchQuery || "")
     .trim()
     .toLowerCase();
 
-  // Use API products if available, otherwise fallback to local products data
   const allProducts = products.length > 0 ? products : productsData;
 
-  // featured products (not affected by category selection, optionally you could filter them too)
   const featuredProducts = useMemo(
     () => allProducts.filter((p) => p.isFeatured),
     [allProducts]
   );
 
-  // derive categories list from data (first element 'All')
   const categories = useMemo(() => {
     const cats = Array.from(
       new Set(allProducts.map((p) => p.category || "Uncategorized"))
@@ -33,7 +29,6 @@ function Home({ searchQuery = "" }) {
     return ["All", ...cats];
   }, [allProducts]);
 
-  // Filter products by search + selectedCategory
   const filteredProducts = useMemo(() => {
     return allProducts?.filter((p) => {
       const name = (p.name || "").toString().toLowerCase();

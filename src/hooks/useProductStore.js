@@ -5,11 +5,14 @@ import { useCartStore } from "./useCartStore";
 
 export const useProductStore = create((set, get) => ({
   products: [],
+  categories: [],
   loading: false,
   error: null,
 
   setProducts: (products) =>
     set({ products: Array.isArray(products) ? products : [] }),
+  setCategories: (categories) =>
+    set({ categories: Array.isArray(categories) ? categories : [] }),
   createProduct: async (productData) => {
     set({ loading: true });
     try {
@@ -190,6 +193,16 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false, products: [] });
       toast.error("Error fetching featured products:", error);
+    }
+  },
+  fetchCategories: async () => {
+    try {
+      const response = await api.get("/categories");
+      const categories = Array.isArray(response.data) ? response.data : [];
+      set({ categories });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories");
     }
   },
 }));

@@ -3,6 +3,7 @@ import {
   PlusCircle,
   ShoppingBasket,
   ClipboardList,
+  FolderPlus,
 } from "lucide-react";
 import { LiaPrescriptionSolid } from "react-icons/lia";
 
@@ -13,11 +14,13 @@ import AnalyticsTab from "../components/AnalyticsTab";
 import CreateProductForm from "../components/CreateProductForm";
 import ProductsList from "../components/ProductsList";
 import Orders from "../components/Orders"; // ✅ NEW COMPONENT
+import AddCategoryForm from "../components/AddCategoryForm";
 import { useProductStore } from "../hooks/useProductStore";
 import AdminPrescriptions from "./AdminPrescriptions";
 
 const tabs = [
   { id: "create", label: "Create Product", icon: PlusCircle },
+  { id: "add-category", label: "Add Category", icon: FolderPlus },
   { id: "products", label: "Products", icon: ShoppingBasket },
   { id: "orders", label: "Orders", icon: ClipboardList }, // ✅ NEW TAB
   { id: "analytics", label: "Analytics", icon: BarChart },
@@ -112,15 +115,17 @@ export default function AdminPage() {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex-shrink-0 snap-start flex items-center gap-2 px-3 py-2 rounded-md whitespace-nowrap text-sm font-medium transition-colors ${
-                        active
-                          ? "text-white"
-                          : "bg-gray-200 text-gray-900"
+                        active ? "text-white" : "bg-gray-200 text-gray-900"
                       }`}
-                      style={active ? {
-                        backgroundColor: 'var(--primary)',
-                      } : {
-                        '--hover-bg': 'var(--primary)',
-                      }}
+                      style={
+                        active
+                          ? {
+                              backgroundColor: "var(--primary)",
+                            }
+                          : {
+                              "--hover-bg": "var(--primary)",
+                            }
+                      }
                     >
                       <Icon className="h-4 w-4" />
                       <span className="truncate max-w-[120px]">
@@ -136,7 +141,7 @@ export default function AdminPage() {
             <div className="hidden md:block mb-6">
               <motion.h1
                 className="text-3xl font-bold"
-                style={{ color: 'var(--primary)' }}
+                style={{ color: "var(--primary)" }}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -153,6 +158,12 @@ export default function AdminPage() {
                   {activeTab === "create" && (
                     <div className="w-full max-w-full">
                       <CreateProductForm />
+                    </div>
+                  )}
+
+                  {activeTab === "add-category" && (
+                    <div className="w-full max-w-full">
+                      <AddCategoryForm />
                     </div>
                   )}
 

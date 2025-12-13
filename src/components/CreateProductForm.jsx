@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
@@ -12,17 +12,6 @@ import {
 } from "lucide-react";
 import { useProductStore } from "../hooks/useProductStore";
 
-const categories = [
-  "Vaccines",
-  "Anti-Allergens",
-  "Antihistamines",
-  "Antibiotics",
-  "Blood Pressure Medicines",
-  "Cough Syrup",
-  "PainKiller",
-  "Diabetes Medicines",
-];
-
 const CreateProductForm = () => {
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -33,7 +22,12 @@ const CreateProductForm = () => {
     stock: "0",
   });
 
-  const { createProduct, loading } = useProductStore();
+  const { createProduct, loading, categories, fetchCategories } =
+    useProductStore();
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -248,11 +242,11 @@ const CreateProductForm = () => {
                 </option>
                 {categories.map((category) => (
                   <option
-                    key={category}
-                    value={category}
+                    key={category._id}
+                    value={category.name}
                     className="bg-slate-800 text-white"
                   >
-                    {category}
+                    {category.name}
                   </option>
                 ))}
               </select>

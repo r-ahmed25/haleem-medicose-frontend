@@ -164,7 +164,7 @@ const ProductCard = ({ product }) => {
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col">
-            <span className="text-xs text-gray-300">
+            <span className="text-xs text-[#008080] font-medium">
               {isLoadingStock
                 ? "Checking..."
                 : typeof realTimeStock === "number"
@@ -173,7 +173,7 @@ const ProductCard = ({ product }) => {
                   : "Out of stock"
                 : realTimeStock ?? "—"}
             </span>
-            <span className="text-[10px] text-gray-500 mt-1">
+            <span className="text-[10px] text-gray-300 mt-1">
               SKU: {product._id?.slice(-6)}
             </span>
           </div>
@@ -181,7 +181,7 @@ const ProductCard = ({ product }) => {
           <div className="flex items-center gap-2">
             <Link
               to={`/product/${product._id}`}
-              className="inline-flex items-center justify-center rounded-md border border-gray-700/40 bg-transparent px-2 py-1 text-xs font-medium text-gray-700 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              className="inline-flex items-center justify-center rounded-md border border-[#008080] bg-[#008080] px-2 py-1 text-xs font-medium text-white hover:bg-[#003366] hover:border-[#003366] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2ecc71] transition-colors"
               aria-label={`View details for ${product.name}`}
             >
               Details

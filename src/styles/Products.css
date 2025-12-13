@@ -127,3 +127,23 @@
     font-size: 0.8rem;
   }
 }
+
+/* Details link styling */
+.details-link {
+  display: inline-block;
+  background: var(--primary); /* Teal */
+  color: var(--secondary); /* White */
+  border: 2px solid var(--primary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.details-link:hover {
+  background: var(--accent); /* Navy */
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}

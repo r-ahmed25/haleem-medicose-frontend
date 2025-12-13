@@ -1,9 +1,19 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import { useProductStore } from "../hooks/useProductStore";
 import "../styles/Categories.css";
 
-export default function Categories({ products = [], selected = "All", onSelect = () => {} }) {
+export default function Categories({
+  products = [],
+  selected = "All",
+  onSelect = () => {},
+}) {
   const listRef = useRef();
   const [scrollIndex, setScrollIndex] = useState(0);
+  const { categories: managedCategories, fetchCategories } = useProductStore();
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   // Compute counts per category
   const categoryCounts = useMemo(() => {
@@ -17,9 +27,13 @@ export default function Categories({ products = [], selected = "All", onSelect =
   }, [products]);
 
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(products.map((p) => p.category || "Uncategorized")));
-    return ["All", ...cats];
-  }, [products]);
+    const managedNames = managedCategories.map((c) => c.name);
+    const productCats = Array.from(
+      new Set(products.map((p) => p.category || "Uncategorized"))
+    );
+    const allCats = Array.from(new Set([...managedNames, ...productCats]));
+    return ["All", ...allCats];
+  }, [managedCategories, products]);
 
   const visibleCount = 7; // number of pills visible at once
 
@@ -50,7 +64,11 @@ export default function Categories({ products = [], selected = "All", onSelect =
 
       {/* Desktop Pills with Arrows */}
       <div className="desktop-category-wrapper desktop-only">
-        <button className="scroll-btn left" onClick={scrollLeft} disabled={scrollIndex === 0}>
+        <button
+          className="scroll-btn left"
+          onClick={scrollLeft}
+          disabled={scrollIndex === 0}
+        >
           &#8249;
         </button>
         <div className="category-list" ref={listRef} role="tablist">
