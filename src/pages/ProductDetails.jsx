@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import productsData from "../data/products";
 import "./ProductDetails.css";
@@ -12,8 +12,9 @@ function ProductDetails({ productsArray }) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const { addToCart } = useCartStore();
+  const { addToCart, refreshTrigger } = useCartStore();
   const { products, loading, fetchAllProducts } = useProductStore();
+  const lastRefreshTrigger = useRef(0); // Start at 0 to trigger on first refresh
 
   // Fetch products if not loaded
   useEffect(() => {
@@ -21,6 +22,14 @@ function ProductDetails({ productsArray }) {
       fetchAllProducts();
     }
   }, [products.length, loading, fetchAllProducts]);
+
+  // Refetch when refresh trigger changes
+  useEffect(() => {
+    if (refreshTrigger > lastRefreshTrigger.current) {
+      lastRefreshTrigger.current = refreshTrigger;
+      fetchAllProducts();
+    }
+  }, [refreshTrigger]); // Remove fetchAllProducts from dependencies to prevent loops
 
   // Try to find product in API products first, then fallback to local data
   const product1 =
@@ -73,9 +82,11 @@ function ProductDetails({ productsArray }) {
           </p>
 
           <div className="details-buttons">
-            <button className="buy-btn" onClick={handleAddToCart}>
-              🛒 Add To Cart
-            </button>
+            {user?.role !== "admin" && (
+              <button className="buy-btn" onClick={handleAddToCart}>
+                🛒 Add To Cart
+              </button>
+            )}
             <button className="back-btn" onClick={() => navigate(-1)}>
               ⬅ Back to Products
             </button>

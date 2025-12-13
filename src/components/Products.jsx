@@ -47,7 +47,7 @@ function Products({ products = [] }) {
   };
 
   return (
-    <section className="products">
+    <section id="products-section" className="products">
       <div
         style={{
           display: "flex",

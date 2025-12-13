@@ -1,4 +1,9 @@
-import { BarChart, PlusCircle, ShoppingBasket, ClipboardList } from "lucide-react";
+import {
+  BarChart,
+  PlusCircle,
+  ShoppingBasket,
+  ClipboardList,
+} from "lucide-react";
 import { LiaPrescriptionSolid } from "react-icons/lia";
 
 import { useEffect, useState } from "react";
@@ -16,7 +21,11 @@ const tabs = [
   { id: "products", label: "Products", icon: ShoppingBasket },
   { id: "orders", label: "Orders", icon: ClipboardList }, // ✅ NEW TAB
   { id: "analytics", label: "Analytics", icon: BarChart },
-  { id: "customerprescriptions", label: "CustomerPrescriptions", icon: LiaPrescriptionSolid }
+  {
+    id: "customerprescriptions",
+    label: "CustomerPrescriptions",
+    icon: LiaPrescriptionSolid,
+  },
 ];
 
 export default function AdminPage() {
@@ -37,7 +46,8 @@ export default function AdminPage() {
           aria-label="Admin sidebar"
         >
           <motion.h2
-            className="text-xl font-bold text-green-700"
+            className="text-xl font-bold"
+            style={{ color: "var(--primary)" }}
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -54,9 +64,18 @@ export default function AdminPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-all duration-200 justify-start text-sm font-medium ml-2 mr-2 ${
                     active
-                      ? "bg-green-700 text-white shadow-lg transform scale-100"
-                      : "text-gray-800 hover:bg-green-100"
+                      ? "text-white shadow-lg transform scale-100"
+                      : "text-gray-800 hover:bg-opacity-20"
                   }`}
+                  style={
+                    active
+                      ? {
+                          backgroundColor: "var(--primary)",
+                        }
+                      : {
+                          "--hover-bg": "var(--primary)",
+                        }
+                  }
                   aria-current={active ? "page" : undefined}
                 >
                   <Icon className="h-5 w-5" />
@@ -76,7 +95,12 @@ export default function AdminPage() {
             {/* TOP BAR for mobile: horizontal scrollable tabs */}
             <div className="md:hidden mb-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-green-700">Admin Dashboard</h1>
+                <h1
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--primary)" }}
+                >
+                  Admin Dashboard
+                </h1>
               </div>
 
               <div className="mt-3 flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
@@ -89,12 +113,19 @@ export default function AdminPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex-shrink-0 snap-start flex items-center gap-2 px-3 py-2 rounded-md whitespace-nowrap text-sm font-medium transition-colors ${
                         active
-                          ? "bg-green-700 text-white"
-                          : "bg-gray-200 text-gray-900 hover:bg-green-200"
+                          ? "text-white"
+                          : "bg-gray-200 text-gray-900"
                       }`}
+                      style={active ? {
+                        backgroundColor: 'var(--primary)',
+                      } : {
+                        '--hover-bg': 'var(--primary)',
+                      }}
                     >
                       <Icon className="h-4 w-4" />
-                      <span className="truncate max-w-[120px]">{tab.label}</span>
+                      <span className="truncate max-w-[120px]">
+                        {tab.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -104,7 +135,8 @@ export default function AdminPage() {
             {/* Desktop heading shown in right area (keeps layout balanced) */}
             <div className="hidden md:block mb-6">
               <motion.h1
-                className="text-3xl font-bold text-green-700"
+                className="text-3xl font-bold"
+                style={{ color: 'var(--primary)' }}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -152,7 +184,9 @@ export default function AdminPage() {
             </div>
 
             {/* Small-screen hint to collapse/expand sidebar on larger devices (optional) */}
-            <div className="mt-4 text-xs text-gray-500 hidden md:block">Tip: use sidebar to quickly switch tabs.</div>
+            <div className="mt-4 text-xs text-gray-500 hidden md:block">
+              Tip: use sidebar to quickly switch tabs.
+            </div>
           </div>
         </main>
       </div>

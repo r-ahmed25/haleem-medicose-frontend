@@ -56,11 +56,11 @@ function FeaturedProducts({ products }) {
 // ProductCard component for FeaturedProducts
 const ProductCard = ({ product }) => {
   const { user } = useAuthStore();
-  const { addToCart, checkProductStock } = useCartStore();
+  const { addToCart, checkProductStock, refreshTrigger } = useCartStore();
   const [realTimeStock, setRealTimeStock] = useState(product.stock);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
 
-  // Fetch real-time stock on mount and periodically
+  // Fetch real-time stock on mount, periodically, and when refresh is triggered
   useEffect(() => {
     const fetchStock = async () => {
       if (product._id) {
@@ -82,8 +82,9 @@ const ProductCard = ({ product }) => {
 
     // Refresh stock every 30 seconds
     const interval = setInterval(fetchStock, 30000);
+
     return () => clearInterval(interval);
-  }, [product._id, checkProductStock]);
+  }, [product._id, checkProductStock, refreshTrigger]);
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -186,26 +187,28 @@ const ProductCard = ({ product }) => {
               Details
             </Link>
 
-            <button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
-                ${
+            {user?.role !== "admin" && (
+              <button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`flex items-center gap-2 rounded-md px-3 py-1 text-xs font-medium text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+                  ${
+                    isOutOfStock
+                      ? "cursor-not-allowed bg-gray-700/50 opacity-70"
+                      : "bg-emerald-600 hover:bg-emerald-700"
+                  }
+                `}
+                aria-disabled={isOutOfStock}
+                aria-label={
                   isOutOfStock
-                    ? "cursor-not-allowed bg-gray-700/50 opacity-70"
-                    : "bg-emerald-600 hover:bg-emerald-700"
+                    ? `${product.name} is out of stock`
+                    : `Add ${product.name} to cart`
                 }
-              `}
-              aria-disabled={isOutOfStock}
-              aria-label={
-                isOutOfStock
-                  ? `${product.name} is out of stock`
-                  : `Add ${product.name} to cart`
-              }
-            >
-              <ShoppingCart size={16} />
-              <span>{isOutOfStock ? "Unavailable" : "Add"}</span>
-            </button>
+              >
+                <ShoppingCart size={16} />
+                <span>{isOutOfStock ? "Unavailable" : "Add"}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

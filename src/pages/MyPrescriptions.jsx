@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function MyPrescriptions() {
   const [prescriptions, setPrescriptions] = useState([]);
@@ -10,6 +11,7 @@ export default function MyPrescriptions() {
   const [filter, setFilter] = useState("");
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -20,6 +22,7 @@ export default function MyPrescriptions() {
   // Fetch prescriptions
   useEffect(() => {
     (async () => {
+      setLoading(true);
       try {
         const res = await api.get(
           `/prescriptions?page=${page}&status=${filter}`
@@ -31,6 +34,8 @@ export default function MyPrescriptions() {
       } catch (err) {
         console.error("Error fetching prescriptions:", err);
         toast.error("Failed to load prescriptions");
+      } finally {
+        setLoading(false);
       }
     })();
   }, [page, filter]);
@@ -106,11 +111,14 @@ export default function MyPrescriptions() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-500">Date</span>
                 <span className="text-sm text-slate-700">
-                  {new Date(prescription.createdAt).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {new Date(prescription.createdAt).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    }
+                  )}
                 </span>
               </div>
 
@@ -163,207 +171,217 @@ export default function MyPrescriptions() {
         My Prescriptions
       </h1>
 
-      {/* Filter + Pagination Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-medium border-2 border-teal-100 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(0, 128, 128, 0.05) 0%, rgba(0, 51, 102, 0.05) 100%)",
-          }}
-        >
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+      {/* Loading Spinner */}
+      {loading && (
+        <LoadingSpinner size="large" text="Loading your prescriptions..." />
+      )}
 
-        <div className="flex items-center gap-2">
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-md"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
-              color: "#008080",
-            }}
-          >
-            ← Prev
-          </button>
-          <span
-            className="text-sm font-medium px-3 py-2 rounded-lg bg-white shadow-sm"
-            style={{ color: "#003366" }}
-          >
-            {page} / {pagination?.totalPages || 1}
-          </span>
-          <button
-            disabled={page >= (pagination?.totalPages || 1)}
-            onClick={() => setPage(page + 1)}
-            className="px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-md"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
-              color: "#008080",
-            }}
-          >
-            Next →
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile View - Compact Cards */}
-      {isMobile ? (
-        <div className="space-y-3">
-          {prescriptions.length > 0 ? (
-            prescriptions.map((p) => (
-              <div
-                key={p._id}
-                className="bg-white rounded-xl shadow-md border border-teal-100 p-4"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm text-slate-500">
-                      {new Date(p.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full border text-xs font-semibold ${getStatusStyle(
-                        p.status
-                      )}`}
-                    >
-                      {p.status || "N/A"}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedPrescription(p)}
-                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #008080 0%, #003366 100%)",
-                      color: "white",
-                    }}
-                  >
-                    Details
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-12 text-slate-400 italic text-sm bg-white rounded-xl shadow-md">
-              No prescriptions found.
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Desktop View - Full Table */
-        <div
-          className="overflow-x-auto rounded-2xl shadow-lg border border-teal-100"
-          style={{ background: "white" }}
-        >
-          <table className="min-w-full">
-            <thead
+      {/* Main Content */}
+      {!loading && (
+        <>
+          {/* Filter + Pagination Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-medium border-2 border-teal-100 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
               style={{
                 background:
-                  "linear-gradient(135deg, rgba(0, 128, 128, 0.08) 0%, rgba(0, 51, 102, 0.08) 100%)",
+                  "linear-gradient(135deg, rgba(0, 128, 128, 0.05) 0%, rgba(0, 51, 102, 0.05) 100%)",
               }}
             >
-              <tr>
-                <th
-                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                  style={{ color: "#003366" }}
-                >
-                  Prescription ID
-                </th>
-                <th
-                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                  style={{ color: "#003366" }}
-                >
-                  Date
-                </th>
-                <th
-                  className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                  style={{ color: "#003366" }}
-                >
-                  Status
-                </th>
-                <th
-                  className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
-                  style={{ color: "#003366" }}
-                >
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-teal-50">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+                className="px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-md"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
+                  color: "#008080",
+                }}
+              >
+                ← Prev
+              </button>
+              <span
+                className="text-sm font-medium px-3 py-2 rounded-lg bg-white shadow-sm"
+                style={{ color: "#003366" }}
+              >
+                {page} / {pagination?.totalPages || 1}
+              </span>
+              <button
+                disabled={page >= (pagination?.totalPages || 1)}
+                onClick={() => setPage(page + 1)}
+                className="px-4 py-2 rounded-xl font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:shadow-md"
+                style={{
+                  background:
+                    "linear-gradient(135deg, rgba(0, 128, 128, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%)",
+                  color: "#008080",
+                }}
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile View - Compact Cards */}
+          {isMobile ? (
+            <div className="space-y-3">
               {prescriptions.length > 0 ? (
-                prescriptions.map((p, idx) => (
-                  <tr
+                prescriptions.map((p) => (
+                  <div
                     key={p._id}
-                    className={`transition-colors hover:bg-teal-50/50 ${
-                      idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
-                    }`}
+                    className="bg-white rounded-xl shadow-md border border-teal-100 p-4"
                   >
-                    <td
-                      className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm"
-                      style={{ color: "#334155" }}
-                    >
-                      <span className="truncate block max-w-[120px] sm:max-w-none">
-                        {p._id}
-                      </span>
-                    </td>
-                    <td
-                      className="px-4 sm:px-6 py-4 text-sm"
-                      style={{ color: "#475569" }}
-                    >
-                      {new Date(p.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
-                          p.status
-                        )}`}
-                      >
-                        {p.status || "N/A"}
-                      </span>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 text-center">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <p className="text-sm text-slate-500">
+                          {new Date(p.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full border text-xs font-semibold ${getStatusStyle(
+                            p.status
+                          )}`}
+                        >
+                          {p.status || "N/A"}
+                        </span>
+                      </div>
                       <button
-                        onClick={() => handleView(p._id)}
-                        className="inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+                        onClick={() => setSelectedPrescription(p)}
+                        className="px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
                         style={{
                           background:
                             "linear-gradient(135deg, #008080 0%, #003366 100%)",
                           color: "white",
                         }}
                       >
-                        View
+                        Details
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))
               ) : (
-                <tr>
-                  <td
-                    colSpan="4"
-                    className="text-center py-12 text-slate-400 italic text-sm"
-                  >
-                    No prescriptions found.
-                  </td>
-                </tr>
+                <div className="text-center py-12 text-slate-400 italic text-sm bg-white rounded-xl shadow-md">
+                  No prescriptions found.
+                </div>
               )}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          ) : (
+            /* Desktop View - Full Table */
+            <div
+              className="overflow-x-auto rounded-2xl shadow-lg border border-teal-100"
+              style={{ background: "white" }}
+            >
+              <table className="min-w-full">
+                <thead
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(0, 128, 128, 0.08) 0%, rgba(0, 51, 102, 0.08) 100%)",
+                  }}
+                >
+                  <tr>
+                    <th
+                      className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: "#003366" }}
+                    >
+                      Prescription ID
+                    </th>
+                    <th
+                      className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: "#003366" }}
+                    >
+                      Date
+                    </th>
+                    <th
+                      className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: "#003366" }}
+                    >
+                      Status
+                    </th>
+                    <th
+                      className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: "#003366" }}
+                    >
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-teal-50">
+                  {prescriptions.length > 0 ? (
+                    prescriptions.map((p, idx) => (
+                      <tr
+                        key={p._id}
+                        className={`transition-colors hover:bg-teal-50/50 ${
+                          idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                        }`}
+                      >
+                        <td
+                          className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm"
+                          style={{ color: "#334155" }}
+                        >
+                          <span className="truncate block max-w-[120px] sm:max-w-none">
+                            {p._id}
+                          </span>
+                        </td>
+                        <td
+                          className="px-4 sm:px-6 py-4 text-sm"
+                          style={{ color: "#475569" }}
+                        >
+                          {new Date(p.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="px-4 sm:px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${getStatusStyle(
+                              p.status
+                            )}`}
+                          >
+                            {p.status || "N/A"}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-6 py-4 text-center">
+                          <button
+                            onClick={() => handleView(p._id)}
+                            className="inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all hover:shadow-md"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, #008080 0%, #003366 100%)",
+                              color: "white",
+                            }}
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="text-center py-12 text-slate-400 italic text-sm"
+                      >
+                        No prescriptions found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {/* Prescription Details Modal */}

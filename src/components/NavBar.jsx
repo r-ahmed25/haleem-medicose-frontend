@@ -238,7 +238,7 @@ export default function NavBar() {
             </div>
 
             <div className="nav-right-top">
-              {user && (
+              {user && user?.role !== "admin" && (
                 <Link
                   to={"/cart"}
                   className="relative group text-white/90 hover:text-emerald-400 transition duration-300 px-2 py-1 rounded-md hover:bg-white/5 flex items-center gap-1 min-w-0"

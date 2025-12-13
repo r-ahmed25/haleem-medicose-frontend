@@ -34,6 +34,25 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-screen py-16 px-4 relative overflow-hidden">
+      {/* Company Logo at Top */}
+      <motion.div
+        className="flex justify-center mb-8"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="opacity-95 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+          <img
+            src="/Haleem_Medicose_logo.png"
+            alt="Haleem Medicose"
+            className="h-40 w-auto"
+            style={{
+              filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.3))",
+            }}
+          />
+        </div>
+      </motion.div>
+
       {/* Enhanced center card with theme-matching gradient background */}
       <div
         className="max-w-2xl mx-auto p-8 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-md relative overflow-hidden"
@@ -58,7 +77,7 @@ const SignUpPage = () => {
             className="text-center mb-8"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">
               Create your account

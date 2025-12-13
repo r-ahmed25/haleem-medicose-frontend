@@ -16,7 +16,8 @@ const OrderSummary = () => {
     coupon,
     isCouponApplied,
     cart,
-    decreaseStockForOrder,
+    markCouponAsUsed,
+    triggerStockRefresh,
   } = useCartStore();
   const clearCart = useCartStore((state) => state.clearCart);
   const { user } = useAuthStore();
@@ -76,7 +77,7 @@ const OrderSummary = () => {
       const response = await api.post("/payment/createcheckout", {
         totalAmount: amountInPaise,
         cartItems: cart,
-        couponApplied: isCouponApplied ? coupon : null,
+        coupon: isCouponApplied ? coupon : null,
       });
 
       const { order, orderId } = response.data;
@@ -127,14 +128,6 @@ const OrderSummary = () => {
               );
             }
             if (verifyRes.success) {
-              // Decrease stock for ordered items
-              try {
-                await decreaseStockForOrder(cart);
-              } catch (stockError) {
-                console.error("Stock update failed:", stockError);
-                // Don't block the order completion for stock update failures
-              }
-
               window.dispatchEvent(new CustomEvent("hm:cartClearRequested"));
               navigate(
                 `/purchase-success?payment_id=${pendingPayment.payment_id}&order_id=${verifyRes.orderId}`

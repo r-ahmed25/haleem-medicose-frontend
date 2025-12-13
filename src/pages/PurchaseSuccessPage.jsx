@@ -1,18 +1,25 @@
 import { ArrowRight, CheckCircle, HandHeart, FileDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import Confetti from "react-confetti";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import {
   downloadAuthenticatedFile,
   generateInvoiceFilename,
 } from "../utils/downloadUtils";
+import { useCartStore } from "../hooks/useCartStore";
 
 const PurchaseSuccessPage = () => {
   const params = new URLSearchParams(window.location.search);
   const paymentId = params.get("payment_id");
   const orderId = params.get("order_id");
   const [downloading, setDownloading] = useState(false);
+  const { triggerStockRefresh } = useCartStore();
+
+  // Trigger stock refresh when success page loads
+  useEffect(() => {
+    triggerStockRefresh();
+  }, [triggerStockRefresh]);
 
   const handleInvoiceDownload = async () => {
     if (!orderId) return;
