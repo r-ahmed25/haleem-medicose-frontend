@@ -29,11 +29,12 @@ import ProfileForm from "./pages/ProfileForm";
 import MyPrescriptions from "./pages/MyPrescriptions";
 import AdminPrescriptions from "./pages/AdminPrescriptions";
 
-function App1() {
+function App() {
   const { isAuthenticated, user, checkingAuth, checkAuth } = useAuthStore();
   const { getCartItems } = useCartStore();
   const authChecked = useRef(false);
   const fetchAllProducts = useProductStore((state) => state.fetchAllProducts);
+  const fetchCategories = useProductStore((state) => state.fetchCategories);
 
   useEffect(() => {
     if (!authChecked.current) {
@@ -44,6 +45,7 @@ function App1() {
 
   useEffect(() => {
     fetchAllProducts();
+    fetchCategories();
   }, []);
 
   // Remove dependency to prevent infinite re-renders
@@ -114,4 +116,4 @@ function App1() {
   );
 }
 
-export default App1;
+export default App;
