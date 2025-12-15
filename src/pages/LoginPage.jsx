@@ -89,8 +89,11 @@ const LoginPage = () => {
                 Email address
               </label>
               <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-white/60" aria-hidden="true" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Mail
+                    className="h-5 w-5 text-emerald-300"
+                    aria-hidden="true"
+                  />
                 </div>
                 <input
                   id="email"
@@ -112,8 +115,11 @@ const LoginPage = () => {
                 Password
               </label>
               <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-white/60" aria-hidden="true" />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <Lock
+                    className="h-5 w-5 text-emerald-300"
+                    aria-hidden="true"
+                  />
                 </div>
                 <input
                   id="password"

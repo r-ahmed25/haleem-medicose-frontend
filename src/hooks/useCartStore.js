@@ -10,6 +10,7 @@ export const useCartStore = create((set, get) => ({
   subtotal: 0,
   isCouponApplied: false,
   refreshTrigger: 0,
+  hasCheckedForCoupon: false,
 
   triggerStockRefresh: () => {
     set((state) => ({ refreshTrigger: state.refreshTrigger + 1 }));
@@ -27,6 +28,20 @@ export const useCartStore = create((set, get) => ({
       console.error("Error fetching coupon:", error);
       // Set coupon to null and reset applied state on error
       set({ coupon: null, isCouponApplied: false });
+    }
+  },
+
+  createCouponIfEligible: async (subtotal) => {
+    try {
+      const response = await api.post("/coupons/create-if-eligible", {
+        subtotal,
+      });
+      if (response.data.coupon) {
+        set({ coupon: response.data.coupon });
+        toast.success("You've earned a coupon!");
+      }
+    } catch (error) {
+      console.error("Error creating coupon:", error);
     }
   },
   applyCoupon: async (code) => {
@@ -49,10 +64,27 @@ export const useCartStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "Failed to apply coupon");
     }
   },
-  removeCoupon: () => {
-    set({ coupon: null, isCouponApplied: false });
+  removeCoupon: async () => {
+    const { coupon } = get();
+    if (coupon && coupon.code) {
+      try {
+        await api.post("/coupons/reactivate", {
+          code: coupon.code,
+        });
+        // Refresh the coupon from server
+        await get().getMyCoupon();
+        set({ isCouponApplied: false });
+        toast.success("Coupon removed and reactivated");
+      } catch (error) {
+        console.error("Error reactivating coupon:", error);
+        set({ coupon: null, isCouponApplied: false });
+        toast.success("Coupon removed successfully");
+      }
+    } else {
+      set({ coupon: null, isCouponApplied: false });
+      toast.success("Coupon removed successfully");
+    }
     get().calculateTotals();
-    toast.success("Coupon removed successfully");
   },
 
   // Check if coupon was already used in previous orders
@@ -352,7 +384,7 @@ export const useCartStore = create((set, get) => ({
     }
   },
   calculateTotals: () => {
-    const { cart, coupon, isCouponApplied } = get();
+    const { cart, coupon, isCouponApplied, hasCheckedForCoupon } = get();
 
     const subtotal = cart.reduce((sum, item) => {
       const price = parseFloat(item.price) || 0;
@@ -372,6 +404,12 @@ export const useCartStore = create((set, get) => ({
     const finalTotal = isNaN(total) ? 0 : total;
 
     set({ subtotal: finalSubtotal, total: finalTotal });
+
+    // Check for coupon creation if eligible
+    if (finalSubtotal >= 500 && !coupon && !hasCheckedForCoupon) {
+      set({ hasCheckedForCoupon: true });
+      get().createCouponIfEligible(finalSubtotal);
+    }
   },
 
   // Refresh stock data for all cart items periodically

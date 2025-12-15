@@ -15,8 +15,12 @@ const GiftCouponCard = () => {
   }, [getMyCoupon]);
 
   useEffect(() => {
-    if (coupon) setUserInputCode(coupon.code);
-  }, [coupon]);
+    if (coupon && coupon.code) {
+      setUserInputCode(coupon.code);
+    } else {
+      setUserInputCode("");
+    }
+  }, [coupon]); // Trigger on coupon object change
 
   const handleApplyCoupon = async () => {
     const trimmedCode = userInputCode.trim();
@@ -64,6 +68,7 @@ const GiftCouponCard = () => {
 
         <div className="relative">
           <input
+            key={coupon?.code || "empty"}
             type="text"
             id="voucher"
             className="block w-full rounded-xl p-3 pl-10 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 transition-all"
