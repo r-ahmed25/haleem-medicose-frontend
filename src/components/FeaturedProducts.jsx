@@ -60,6 +60,50 @@ const ProductCard = ({ product }) => {
   const [realTimeStock, setRealTimeStock] = useState(product.stock);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
 
+  // Function to resolve product image (handles both array and single image)
+  const resolveProductImage = (product) => {
+    // Debug logging to understand image structure
+    console.log("FeaturedProducts - Product images:", product.images);
+    console.log("FeaturedProducts - Product image:", product.image);
+    console.log("FeaturedProducts - Product thumbnail:", product.thumbnail);
+
+    // 1. New products (Cloudinary) - Check for images array
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      console.log(
+        "FeaturedProducts - Processing images array:",
+        product.images
+      );
+      const primary = product.images.find((i) => i.isPrimary);
+      const candidate = primary || product.images[0];
+      console.log("FeaturedProducts - Primary image:", primary);
+      console.log("FeaturedProducts - Candidate image:", candidate);
+
+      if (candidate?.url) {
+        console.log("FeaturedProducts - Using URL:", candidate.url);
+        return candidate.url;
+      }
+      if (candidate?.data) {
+        console.log("FeaturedProducts - Using data URL");
+        return candidate.data;
+      }
+    }
+
+    // 2. Old products - Check image field first, then thumbnail
+    if (product.image) {
+      console.log("FeaturedProducts - Using legacy image field");
+      return product.image;
+    }
+
+    if (product.thumbnail) {
+      console.log("FeaturedProducts - Using legacy thumbnail field");
+      return product.thumbnail;
+    }
+
+    // 3. Absolute safe fallback (inline SVG, never breaks)
+    console.log("FeaturedProducts - Using fallback image");
+    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==";
+  };
+
   // Fetch real-time stock on mount, periodically, and when refresh is triggered
   useEffect(() => {
     const fetchStock = async () => {
@@ -120,14 +164,14 @@ const ProductCard = ({ product }) => {
       <div className="relative mx-3 mt-3 h-40 overflow-hidden rounded-lg bg-mute-700/40 flex items-center justify-center p-2">
         {/* image uses object-contain and centered to show full product */}
         <img
-          src={product.thumbnail || product.image || ""}
+          src={resolveProductImage(product)}
           alt={product.name || "product image"}
           className="max-h-full max-w-full object-contain object-center"
           onError={(e) => {
-            if (product.image && e.currentTarget.src !== product.image) {
-              e.currentTarget.src = product.image;
-            } else {
-              e.currentTarget.style.display = "none";
+            const fallbackImage =
+              "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==";
+            if (e.currentTarget.src !== fallbackImage) {
+              e.currentTarget.src = fallbackImage;
             }
           }}
         />

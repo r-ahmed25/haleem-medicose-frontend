@@ -34,7 +34,8 @@ function Home({ searchQuery = "" }) {
       const name = (p.name || "").toString().toLowerCase();
       const desc = (p.description || "").toString().toLowerCase();
       const cat = (p.category || "").toString();
-
+      const images = p?.images?.isPrimary || []; 
+      console.log("Home - Product images:", p.images);
       // category filter
       const categoryMatches =
         selectedCategory === "All" || cat === selectedCategory;

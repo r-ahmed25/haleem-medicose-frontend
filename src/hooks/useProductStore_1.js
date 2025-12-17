@@ -13,7 +13,7 @@ export const useProductStore = create((set, get) => ({
     set({ products: Array.isArray(products) ? products : [] }),
   setCategories: (categories) =>
     set({ categories: Array.isArray(categories) ? categories : [] }),
- createProduct: async (productData) => {
+  createProduct: async (productData) => {
     set({ loading: true });
     try {
       const res = await api.post("/products/addproduct", productData);

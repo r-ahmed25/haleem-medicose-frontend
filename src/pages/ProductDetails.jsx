@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import productsData from "../data/products";
 import "./ProductDetails.css";
@@ -6,79 +6,157 @@ import { useAuthStore } from "../hooks/useAuthStore";
 import { useCartStore } from "../hooks/useCartStore";
 import toast from "react-hot-toast";
 import { useProductStore } from "../hooks/useProductStore";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Thumbs, Keyboard } from "swiper/modules";
 
-function ProductDetails({ productsArray }) {
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+export const cloudinaryBgRemoved = (url, width = 600) => {
+  if (!url || !url.includes("cloudinary")) return url;
+
+  return url.replace(
+    "/upload/",
+    `/upload/e_background_removal,w_${width},f_auto,q_auto/`
+  );
+};
+
+function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthStore();
-
   const { addToCart, refreshTrigger } = useCartStore();
   const { products, loading, fetchAllProducts } = useProductStore();
-  const lastRefreshTrigger = useRef(0); // Start at 0 to trigger on first refresh
 
-  // Fetch products if not loaded
+  const [activeIndex, setActiveIndex] = useState(0);
+  const lastRefreshTrigger = useRef(0);
+  const imgRef = useRef(null);
+
   useEffect(() => {
     if (products.length === 0 && !loading) {
       fetchAllProducts();
     }
   }, [products.length, loading, fetchAllProducts]);
 
-  // Refetch when refresh trigger changes
   useEffect(() => {
     if (refreshTrigger > lastRefreshTrigger.current) {
       lastRefreshTrigger.current = refreshTrigger;
       fetchAllProducts();
     }
-  }, [refreshTrigger]); // Remove fetchAllProducts from dependencies to prevent loops
+  }, [refreshTrigger]);
 
-  // Try to find product in API products first, then fallback to local data
-  const product1 =
+  const product =
     products.find((p) => String(p._id) === id) ||
     productsData.find((p) => String(p._id) === id);
 
+  /* ---------- NORMALIZE IMAGES ---------- */
+  const images = product?.images?.length
+    ? product.images
+    : product?.image
+    ? [{ url: product.image, isPrimary: true }]
+    : [];
+
+  useEffect(() => {
+    const primaryIndex = images.findIndex((img) => img.isPrimary);
+    setActiveIndex(primaryIndex >= 0 ? primaryIndex : 0);
+  }, [product?._id]);
+
   if (loading) {
-    return (
-      <div className="page product-details">
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-          <span className="ml-3 text-gray-600">Loading product details...</span>
-        </div>
-      </div>
-    );
+    return <div className="loading">Loading product...</div>;
   }
 
-  if (!product1) return <h2>Product not found</h2>;
+  if (!product) return <h2>Product not found</h2>;
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    imgRef.current.style.transformOrigin = `${x}% ${y}%`;
+  };
+
+  const handleMouseLeave = () => {
+    imgRef.current.style.transformOrigin = "center";
+  };
 
   const handleAddToCart = () => {
     if (!user) {
-      toast.error("Please login to add products to cart", { id: "login" });
+      toast.error("Please login to add products to cart");
       return;
     }
-    addToCart(product1);
+    addToCart(product);
   };
+
+  const nextImage = () => setActiveIndex((i) => (i + 1) % images.length);
+
+  const prevImage = () =>
+    setActiveIndex((i) => (i === 0 ? images.length - 1 : i - 1));
 
   return (
     <div className="page product-details">
       <div className="product-details-container">
-        <img
-          src={product1.image}
-          alt={product1.name}
-          className="product-details-image"
-        />
+        {/* -------- IMAGE CAROUSEL -------- */}
+        <div className="product-gallery">
+          <div className="main-image-wrapper">
+            <div
+              className="zoom-container"
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+            >
+              <img
+                ref={imgRef}
+                src={images[activeIndex]?.url}
+                alt={product.name}
+                className="main-product-image zoom-image"
+              />
+            </div>
+
+            {images.length > 1 && (
+              <>
+                <button className="nav left" onClick={prevImage}>
+                  <ChevronLeft />
+                </button>
+                <button className="nav right" onClick={nextImage}>
+                  <ChevronRight />
+                </button>
+              </>
+            )}
+          </div>
+
+          {images.length > 1 && (
+            <div className="thumbnail-row">
+              {images.map((img, index) => (
+                <img
+                  key={index}
+                  src={img.url}
+                  alt=""
+                  className={`thumbnail ${
+                    index === activeIndex ? "active" : ""
+                  }`}
+                  onClick={() => setActiveIndex(index)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* -------- PRODUCT INFO -------- */}
         <div className="product-details-info">
-          <h2>{product1.name}</h2>
-          <p className="description">{product1.description}</p>
+          <h2>{product.name}</h2>
+          <p className="description">{product.description}</p>
+
           <p>
-            <strong>Category:</strong> {product1.category}
+            <strong>Category:</strong> {product.category}
           </p>
+
           <p className="price">
-            <strong>Price:</strong> ₹{product1.price}
+            <strong>Price:</strong> ₹{product.price}
           </p>
+
           <p className="stock">
             <strong>Stock:</strong>{" "}
-            {product1.stock > 0
-              ? `${product1.stock} available`
-              : "Out of stock"}
+            {product.stock > 0 ? `${product.stock} available` : "Out of stock"}
           </p>
 
           <div className="details-buttons">

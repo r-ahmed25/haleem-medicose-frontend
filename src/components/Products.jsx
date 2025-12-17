@@ -68,7 +68,7 @@ function Products({ products = [] }) {
           paged.map((product) => (
             <div className="product-card" key={product._id}>
               <img
-                src={product.thumbnail || product.image || ""}
+                src={product.thumbnail || product.images?.[0]?.url || ""}
                 alt={product.name}
                 className="product-image"
                 onError={(e) => {

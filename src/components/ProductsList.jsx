@@ -44,6 +44,24 @@ const ProductsList = () => {
     image: "",
   });
 
+  // Function to resolve product image (handles both array and single image)
+  const resolveProductImage = (product) => {
+    // 1. New products (Cloudinary)
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      const primary = product.images.find((i) => i.isPrimary);
+      const candidate = primary || product.images[0];
+
+      if (candidate?.url) return candidate.url;
+      if (candidate?.data) return candidate.data;
+    }
+
+    // 2. Old products
+    if (product.image) return product.image;
+
+    // 3. Absolute safe fallback
+    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==";
+  };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
@@ -546,7 +564,7 @@ const ProductsList = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <img
-                          src={product.image}
+                          src={resolveProductImage(product)}
                           alt={product.name}
                           className="h-12 w-12 rounded-lg object-cover border border-white/20 flex-shrink-0"
                         />
@@ -644,7 +662,7 @@ const ProductsList = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <img
                                 className="h-10 w-10 rounded-lg object-cover border border-white/20"
-                                src={product.image}
+                                src={resolveProductImage(product)}
                                 alt={product.name}
                               />
                             </div>
