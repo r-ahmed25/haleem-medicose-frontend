@@ -14,7 +14,7 @@ function Hero() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <h1 className="hero-title">Haleem Medicose</h1>
+        <h1 className="hero-title">Medicose</h1>
         <p>
           Medicines, healthcare products, and Essentials at the best prices
           — delivered fast and safely.
