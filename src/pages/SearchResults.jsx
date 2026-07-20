@@ -17,9 +17,11 @@ export function SearchResults() {
     inputRef.current?.focus();
   }, []);
 
-  // Fetch products from backend on component mount
+  // Fetch products only once if not already loaded (guard against infinite re-fetch loops)
+  const hasFetched = useRef(false);
   useEffect(() => {
-    if (products.length === 0 && !loading) {
+    if (!hasFetched.current && products.length === 0 && !loading) {
+      hasFetched.current = true;
       fetchAllProducts();
     }
   }, [products.length, loading, fetchAllProducts]);

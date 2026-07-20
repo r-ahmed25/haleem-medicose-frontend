@@ -11,6 +11,8 @@ export const useCartStore = create((set, get) => ({
   isCouponApplied: false,
   refreshTrigger: 0,
   hasCheckedForCoupon: false,
+  directDiscountPercentage: 0,
+  isDirectDiscountApplied: false,
 
   triggerStockRefresh: () => {
     set((state) => ({ refreshTrigger: state.refreshTrigger + 1 }));
@@ -203,13 +205,24 @@ export const useCartStore = create((set, get) => ({
       console.error("Error checking cart stock status:", error);
     }
   },
-  clearCart: async () => {
-    try {
-      const res = await api.delete("/cart/clear");
+  setDirectDiscount: (percentage) => set({ directDiscountPercentage: Number(percentage) || 0 }),
+  toggleDirectDiscount: (enabled) => {
+    set({ isDirectDiscountApplied: enabled });
+    get().calculateTotals();
+  },
+  clearDirectDiscount: () => set({ directDiscountPercentage: 0, isDirectDiscountApplied: false }),
+  clearCart: async (optimistic = true) => {
+    // Optimistic: clear local state immediately so the NavBar badge updates instantly
+    if (optimistic) {
       set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+    }
+    try {
+      await api.delete("/cart/clear");
     } catch (error) {
       console.error("Error clearing cart:", error);
-      set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+      if (!optimistic) {
+        set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+      }
       toast.error(error.response?.data?.message || "Failed to clear cart");
     }
   },
@@ -384,7 +397,7 @@ export const useCartStore = create((set, get) => ({
     }
   },
   calculateTotals: () => {
-    const { cart, coupon, isCouponApplied, hasCheckedForCoupon } = get();
+    const { cart, coupon, isCouponApplied, hasCheckedForCoupon, directDiscountPercentage, isDirectDiscountApplied } = get();
 
     const subtotal = cart.reduce((sum, item) => {
       const price = parseFloat(item.price) || 0;
@@ -394,9 +407,11 @@ export const useCartStore = create((set, get) => ({
 
     let total = subtotal;
 
-    // Only apply discount if coupon is actually applied
     if (coupon && coupon.discountPercentage && isCouponApplied) {
       const discount = subtotal * (coupon.discountPercentage / 100);
+      total = subtotal - discount;
+    } else if (isDirectDiscountApplied && directDiscountPercentage > 0) {
+      const discount = subtotal * (directDiscountPercentage / 100);
       total = subtotal - discount;
     }
 
@@ -558,3 +573,6 @@ export const useCartStore = create((set, get) => ({
     }
   },
 }));
+
+
+

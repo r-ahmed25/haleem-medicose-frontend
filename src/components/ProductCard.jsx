@@ -53,6 +53,13 @@ const ProductCard = ({ product }) => {
 
   const primaryImage = resolveProductImage(product);
 
+  // Sync local stock state when product prop changes (store refresh from another tab/sale)
+  useEffect(() => {
+    if (product.stock !== undefined) {
+      setRealTimeStock((prev) => (prev !== product.stock ? product.stock : prev));
+    }
+  }, [product.stock]);
+
   // Fetch real-time stock on mount, periodically, and when refresh is triggered
   useEffect(() => {
     const fetchStock = async () => {

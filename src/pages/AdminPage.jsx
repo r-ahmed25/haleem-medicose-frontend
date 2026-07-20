@@ -4,6 +4,7 @@ import {
   ShoppingBasket,
   ClipboardList,
   FolderPlus,
+  DollarSign,
 } from "lucide-react";
 import { LiaPrescriptionSolid } from "react-icons/lia";
 
@@ -13,8 +14,9 @@ import { motion } from "framer-motion";
 import AnalyticsTab from "../components/AnalyticsTab";
 import CreateProductForm from "../components/CreateProductForm";
 import ProductsList from "../components/ProductsList";
-import Orders from "../components/Orders"; // ✅ NEW COMPONENT
+import Orders from "../components/Orders";
 import AddCategoryForm from "../components/AddCategoryForm";
+import AdminSales from "../components/AdminSales";
 import { useProductStore } from "../hooks/useProductStore";
 import AdminPrescriptions from "./AdminPrescriptions";
 
@@ -24,6 +26,7 @@ const tabs = [
   { id: "products", label: "Products", icon: ShoppingBasket },
   { id: "orders", label: "Orders", icon: ClipboardList }, // ✅ NEW TAB
   { id: "analytics", label: "Analytics", icon: BarChart },
+  { id: "sales", label: "Sales", icon: DollarSign },
   {
     id: "customerprescriptions",
     label: "CustomerPrescriptions",
@@ -182,6 +185,12 @@ export default function AdminPage() {
                   {activeTab === "analytics" && (
                     <div className="w-full max-w-full">
                       <AnalyticsTab />
+                    </div>
+                  )}
+
+                  {activeTab === "sales" && (
+                    <div className="w-full max-w-full">
+                      <AdminSales />
                     </div>
                   )}
 

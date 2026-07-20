@@ -22,7 +22,7 @@ function Footer() {
         }}
       />
       <p className="relative z-10">
-        &copy; 2025 Haleem Medicose. All Rights Reserved.
+        &copy; 2026 Khan Medicines. All Rights Reserved.
       </p>
     </footer>
   );

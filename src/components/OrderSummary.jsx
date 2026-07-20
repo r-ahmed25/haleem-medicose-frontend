@@ -1,165 +1,21 @@
 import { motion } from "framer-motion";
 import { useCartStore } from "../hooks/useCartStore";
-import { useAuthStore } from "../hooks/useAuthStore";
-import { verifyPayment } from "../utils/paymentUtils";
 import { MoveRight } from "lucide-react";
-import api from "../lib/axios";
 import formatCurrency from "../lib/formatCurrency";
-import { toast } from "react-hot-toast";
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const OrderSummary = () => {
-  const {
-    total,
-    subtotal,
-    coupon,
-    isCouponApplied,
-    cart,
-    markCouponAsUsed,
-    triggerStockRefresh,
-  } = useCartStore();
-  const clearCart = useCartStore((state) => state.clearCart);
-  const { user } = useAuthStore();
+  const { total, subtotal, coupon, isCouponApplied, cart, isDirectDiscountApplied, directDiscountPercentage } = useCartStore();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
   const savings = subtotal - total;
   const formattedSubtotal = formatCurrency(subtotal.toFixed(2));
   const formattedTotal = formatCurrency(total.toFixed(2));
   const formattedSavings = savings.toFixed(2);
 
-  const handlePayment = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-
-    try {
-      const { isAuthenticated } = useAuthStore.getState();
-      if (!isAuthenticated) {
-        toast.error("Please login to proceed with payment");
-        setIsLoading(false);
-        return;
-      }
-
-      if (!cart || cart.length === 0) {
-        toast.error("Your cart is empty");
-        setIsLoading(false);
-        return;
-      }
-
-      const amountInRupees = Number(total);
-      if (amountInRupees <= 0) {
-        toast.error("Invalid order amount");
-        setIsLoading(false);
-        return;
-      }
-
-      if (
-        typeof window === "undefined" ||
-        typeof window.Razorpay === "undefined"
-      ) {
-        toast.error("Payment system not loaded. Please refresh the page.");
-        setIsLoading(false);
-        return;
-      }
-
-      const amountInPaise = Math.round(amountInRupees * 100);
-      console.log(
-        "Initiating payment for:",
-        amountInRupees,
-        "INR =",
-        amountInPaise,
-        "paise"
-      );
-
-      const keyResponse = await api.get("/payment/getkey");
-      const { key } = keyResponse.data;
-      const response = await api.post("/payment/createcheckout", {
-        totalAmount: amountInPaise,
-        cartItems: cart,
-        coupon: isCouponApplied ? coupon : null,
-      });
-
-      const { order, orderId } = response.data;
-      console.log("Razorpay order created:", order.id);
-
-      const options = {
-        key,
-        amount: order.amount,
-        currency: order.currency || "INR",
-        name: "Haleem Medicos",
-        description: "Medicine Purchase",
-        order_id: order.id,
-        prefill: {
-          name: user?.name || "Customer",
-          email: user?.email || "",
-          contact: "9999999999",
-        },
-        theme: { color: "#008080" },
-        handler: async function (razorResponse) {
-          const pendingPayment = {
-            payment_id: razorResponse.razorpay_payment_id,
-            order_id: order.id,
-            signature: razorResponse.razorpay_signature,
-            orderItems: cart,
-            totalAmount: amountInPaise,
-            couponApplied: isCouponApplied ? coupon : null,
-          };
-          try {
-            setIsLoading(true);
-            const verifyRes = await verifyPayment(pendingPayment);
-            console.log("Payment verification result:", verifyRes);
-            if (verifyRes?.needs_address) {
-              const pendingPayload = {
-                payment_id: pendingPayment.payment_id,
-                order_id: pendingPayment.order_id,
-                signature: pendingPayment.signature,
-                orderItems: cart,
-                totalAmount: amountInPaise,
-                couponApplied: isCouponApplied ? coupon : null,
-              };
-              navigate(
-                `/location?pendingOrder=${encodeURIComponent(
-                  pendingPayload.order_id
-                )}`,
-                {
-                  state: { fromCheckout: true, pendingPayment: pendingPayload },
-                }
-              );
-            }
-            if (verifyRes.success) {
-              window.dispatchEvent(new CustomEvent("hm:cartClearRequested"));
-              navigate(
-                `/purchase-success?payment_id=${pendingPayment.payment_id}&order_id=${verifyRes.orderId}`
-              );
-            } else if (verifyRes.needs_address) {
-              navigate(`/location?pendingOrder=${verifyRes.order_id}`, {
-                state: { fromCheckout: true, pendingPayment: pendingPayment },
-              });
-            } else {
-              navigate("/purchase-cancel");
-            }
-          } catch (err) {
-            console.error("Verification failed:", err);
-            toast.error(
-              err?.message || "Payment verification failed. Please try again."
-            );
-            navigate("/purchase-cancel");
-          } finally {
-            setIsLoading(false);
-          }
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to initiate payment"
-      );
-      setIsLoading(false);
-    }
+  const handleProceed = () => {
+    if (!cart || cart.length === 0) return;
+    navigate("/sale-review");
   };
 
   return (
@@ -263,17 +119,16 @@ const OrderSummary = () => {
         </div>
 
         <motion.button
-          className="flex w-full items-center justify-center rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] transition-all duration-200"
+          className="flex w-full items-center justify-center rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white min-h-[48px] transition-all duration-200"
           style={{
             background: "linear-gradient(135deg, #008080 0%, #003366 100%)",
             boxShadow: "0 4px 14px rgba(0, 128, 128, 0.25)",
           }}
-          whileHover={{ scale: isLoading ? 1 : 1.02 }}
-          whileTap={{ scale: isLoading ? 1 : 0.98 }}
-          onClick={handlePayment}
-          disabled={isLoading}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleProceed}
         >
-          {isLoading ? "Processing..." : "Proceed to Checkout"}
+          Proceed with Sale
         </motion.button>
 
         <div className="flex items-center justify-center gap-2 pt-2">
@@ -298,3 +153,5 @@ const OrderSummary = () => {
 };
 
 export default OrderSummary;
+
+

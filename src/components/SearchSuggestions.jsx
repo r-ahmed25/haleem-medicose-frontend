@@ -133,9 +133,11 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
     }
   };
 
-  // Fetch products on component mount if not already loaded
+  // Fetch products on component mount if not already loaded (GUARD: only attempt once)
+  const hasFetched = useRef(false);
   useEffect(() => {
-    if (products.length === 0 && !loading) {
+    if (!hasFetched.current && products.length === 0 && !loading) {
+      hasFetched.current = true;
       fetchAllProducts();
     }
   }, [products.length, loading, fetchAllProducts]);
@@ -245,24 +247,20 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, suggestions, selectedIndex]);
 
-  // Update position on window resize and scroll
+  // Update position on window resize only (NOT on scroll — scroll causes re-render loops)
   useEffect(() => {
     const handleReposition = () => {
-      // Force re-render to update position
-      if (isOpen || loading) {
-        setIsOpen((prev) => !prev);
-        setTimeout(() => setIsOpen(true), 0);
-      }
+      // Force re-render to update position — only on resize, not scroll
+      setIsOpen((prev) => !prev);
+      setTimeout(() => setIsOpen(true), 0);
     };
 
     window.addEventListener("resize", handleReposition);
-    window.addEventListener("scroll", handleReposition, true);
 
     return () => {
       window.removeEventListener("resize", handleReposition);
-      window.removeEventListener("scroll", handleReposition, true);
     };
-  }, [isOpen, loading]);
+  }, []); // Only mount/unmount — no deps that change every render
 
   const handleSuggestionClick = (suggestion) => {
     if (suggestion.type === "product") {
@@ -281,20 +279,20 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
     setSelectedIndex(-1);
   };
 
-  // Show loading state while fetching products
-  if (loading || products.length === 0) {
+  // Show loading state only while actively fetching (not when products are simply empty)
+  if (loading && products.length === 0) {
     const searchContainer = document.querySelector(".search-container");
     const rect = searchContainer
       ? searchContainer.getBoundingClientRect()
-      : { top: 0, left: 0, width: "100%" };
+      : { bottom: 0, left: 0, width: "100%" };
 
     return createPortal(
       <div
         className="bg-white rounded-xl shadow-2xl border border-gray-100 max-h-96 overflow-hidden backdrop-blur-sm p-4"
         style={{
           position: "fixed",
-          top: rect.bottom + window.scrollY + 4,
-          left: rect.left + window.scrollX,
+          top: (rect.bottom || 0) + window.scrollY + 4,
+          left: (rect.left || 0) + window.scrollX,
           width: rect.width,
           zIndex: 2147483647,
           transform: "translateZ(0)",
@@ -320,8 +318,8 @@ const SearchSuggestions = ({ query, onClose, onSelect }) => {
 
     const rect = searchContainer.getBoundingClientRect();
     return {
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX,
+      top: (rect.bottom || 0) + window.scrollY + 4,
+      left: (rect.left || 0) + window.scrollX,
       width: rect.width,
       maxWidth: "920px",
     };

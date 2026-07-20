@@ -28,6 +28,8 @@ import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 import ProfileForm from "./pages/ProfileForm";
 import MyPrescriptions from "./pages/MyPrescriptions";
 import AdminPrescriptions from "./pages/AdminPrescriptions";
+import SaleReview from "./pages/SaleReview";
+import SaleComplete from "./pages/SaleComplete";
 
 function App() {
   const { isAuthenticated, user, checkingAuth, checkAuth } = useAuthStore();
@@ -88,6 +90,8 @@ function App() {
           <Route path="/update-profile" element={<ProfileForm />} />
           <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
           <Route path="/purchase-cancel" element={<PurchaseCancelPage />} />
+          <Route path="/sale-review" element={<SaleReview />} />
+          <Route path="/sale-complete" element={<SaleComplete />} />
         </Route>
 
         {/* ✅ Redirect logged-in users away from login/signup */}

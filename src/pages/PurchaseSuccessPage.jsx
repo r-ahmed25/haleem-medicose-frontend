@@ -8,6 +8,7 @@ import {
   generateInvoiceFilename,
 } from "../utils/downloadUtils";
 import { useCartStore } from "../hooks/useCartStore";
+import { useProductStore } from "../hooks/useProductStore";
 
 const PurchaseSuccessPage = () => {
   const params = new URLSearchParams(window.location.search);
@@ -15,11 +16,13 @@ const PurchaseSuccessPage = () => {
   const orderId = params.get("order_id");
   const [downloading, setDownloading] = useState(false);
   const { triggerStockRefresh } = useCartStore();
+  const { fetchAllProducts } = useProductStore();
 
   // Trigger stock refresh when success page loads
   useEffect(() => {
+    fetchAllProducts();
     triggerStockRefresh();
-  }, [triggerStockRefresh]);
+  }, [triggerStockRefresh, fetchAllProducts]);
 
   const handleInvoiceDownload = async () => {
     if (!orderId) return;

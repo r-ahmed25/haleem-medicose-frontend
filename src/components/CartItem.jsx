@@ -123,7 +123,7 @@ const CartItem = ({ item }) => {
         <div className="shrink-0 md:order-1">
           <img
             className="h-20 md:h-32 rounded-xl object-cover"
-            src={item.images[0]?.url || ""}
+            src={item.images?.[0]?.url || item.image || ""}
             alt={item.name}
             style={{ border: "1px solid rgba(0, 128, 128, 0.1)" }}
           />

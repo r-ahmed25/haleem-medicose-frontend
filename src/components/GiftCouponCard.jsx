@@ -1,14 +1,26 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useCartStore } from "../hooks/useCartStore";
-import { Gift, Tag, X } from "lucide-react";
+import { Gift, Tag, X, Percent } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const GiftCouponCard = () => {
   const [userInputCode, setUserInputCode] = useState("");
   const [isApplying, setIsApplying] = useState(false);
-  const { coupon, isCouponApplied, applyCoupon, getMyCoupon, removeCoupon } =
-    useCartStore();
+  const [directPercent, setDirectPercent] = useState("10");
+
+  const {
+    coupon,
+    isCouponApplied,
+    applyCoupon,
+    getMyCoupon,
+    removeCoupon,
+    isDirectDiscountApplied,
+    directDiscountPercentage,
+    toggleDirectDiscount,
+    setDirectDiscount,
+    clearDirectDiscount,
+  } = useCartStore();
 
   useEffect(() => {
     getMyCoupon();
@@ -20,7 +32,7 @@ const GiftCouponCard = () => {
     } else {
       setUserInputCode("");
     }
-  }, [coupon]); // Trigger on coupon object change
+  }, [coupon]);
 
   const handleApplyCoupon = async () => {
     const trimmedCode = userInputCode.trim();
@@ -28,10 +40,13 @@ const GiftCouponCard = () => {
       toast.error("Please enter a coupon code");
       return;
     }
-
     setIsApplying(true);
     try {
       await applyCoupon(trimmedCode);
+      if (isDirectDiscountApplied) {
+        clearDirectDiscount();
+        toggleDirectDiscount(false);
+      }
     } finally {
       setIsApplying(false);
     }
@@ -40,6 +55,37 @@ const GiftCouponCard = () => {
   const handleRemoveCoupon = async () => {
     await removeCoupon();
     setUserInputCode("");
+  };
+
+  const handleDirectDiscountToggle = async (e) => {
+    const checked = e.target.checked;
+    if (checked) {
+      const percent = parseFloat(directPercent);
+      if (isNaN(percent) || percent <= 0 || percent > 100) {
+        toast.error("Enter a valid discount percentage between 1 and 100");
+        return;
+      }
+      if (isCouponApplied && coupon) {
+        await removeCoupon();
+        setUserInputCode("");
+      }
+      setDirectDiscount(percent);
+      toggleDirectDiscount(true);
+      toast.success(`${percent}% discount applied`);
+    } else {
+      clearDirectDiscount();
+      toggleDirectDiscount(false);
+    }
+  };
+
+  const handleDirectPercentChange = (value) => {
+    setDirectPercent(value);
+    if (isDirectDiscountApplied) {
+      const percent = parseFloat(value);
+      if (!isNaN(percent) && percent > 0 && percent <= 100) {
+        setDirectDiscount(percent);
+      }
+    }
   };
 
   return (
@@ -86,7 +132,6 @@ const GiftCouponCard = () => {
                 handleApplyCoupon();
               }
             }}
-            required
             disabled={isApplying}
           />
           <Tag
@@ -111,6 +156,50 @@ const GiftCouponCard = () => {
         </motion.button>
       </div>
 
+      <div
+        className="mt-4 p-4 rounded-xl"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(0, 128, 128, 0.03) 0%, rgba(0, 51, 102, 0.03) 100%)",
+          border: "1px solid rgba(0, 128, 128, 0.1)",
+        }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <Percent className="w-4 h-4" style={{ color: "#008080" }} />
+          <label className="text-sm font-semibold" style={{ color: "#003366" }}>
+            Direct discount at sale
+          </label>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="directDiscount"
+            checked={isDirectDiscountApplied}
+            onChange={handleDirectDiscountToggle}
+            className="h-4 w-4 rounded border-gray-300 text-[#008080] focus:ring-[#008080]"
+          />
+          <span className="text-sm" style={{ color: "#334155" }}>
+            Apply discount
+          </span>
+        </div>
+        {isDirectDiscountApplied && (
+          <div className="mt-3">
+            <input
+              type="number"
+              min="1"
+              max="100"
+              value={directPercent}
+              onChange={(e) => handleDirectPercentChange(e.target.value)}
+              className="w-full rounded-xl p-2.5 text-sm border-2 border-teal-100 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+              placeholder="Discount %"
+            />
+            <p className="mt-1 text-xs" style={{ color: "#64748b" }}>
+              Default is 10%. You can enter a higher value.
+            </p>
+          </div>
+        )}
+      </div>
+
       {isCouponApplied && coupon && (
         <div
           className="mt-4 p-4 rounded-xl"
@@ -121,10 +210,7 @@ const GiftCouponCard = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3
-                className="text-sm font-semibold"
-                style={{ color: "#003366" }}
-              >
+              <h3 className="text-sm font-semibold" style={{ color: "#003366" }}>
                 Applied Coupon
               </h3>
               <p className="mt-1 text-sm" style={{ color: "#008080" }}>

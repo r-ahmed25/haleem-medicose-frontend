@@ -14,11 +14,8 @@ function Hero() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <h1 className="hero-title">Medicose</h1>
-        <p>
-          Medicines, healthcare products, and Essentials at the best prices
-          — delivered fast and safely.
-        </p>
+          <img src="/Haleem_Medicose_logo.png" alt="Khan Medicines Logo" style={{ height: "220px", width: "auto", filter: "invert(1) drop-shadow(0 4px 10px rgba(0,0,0,0.6))", display: "block", margin: "0 auto", marginTop: "-40px" }} />
+        <p style={{ marginTop: "-28px" }}>Medicines, healthcare products, and Essentials at the best prices</p>
         <div className="hero-buttons ">
           <button
             onClick={scrollToProducts}

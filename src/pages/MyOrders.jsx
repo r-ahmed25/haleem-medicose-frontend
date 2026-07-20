@@ -79,6 +79,17 @@ export default function MyOrders() {
     })();
   }, [page, filter]);
 
+  // Direct sales store totalAmount in rupees, old Razorpay orders stored in paise
+  const formatOrderTotal = (order) => {
+    const amount = order.totalAmount || 0;
+    // If the order has razorpayPaymentId, it was stored in paise (old orders)
+    // If the order is a direct sale (no razorpayPaymentId), it's already in rupees
+    if (order.razorpayPaymentId) {
+      return (amount / 100).toFixed(2);
+    }
+    return amount.toFixed(2);
+  };
+
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "processing":
@@ -87,6 +98,8 @@ export default function MyOrders() {
         return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "cancelled":
         return "bg-rose-50 text-rose-700 border-rose-200";
+      case "completed":
+        return "bg-teal-50 text-teal-700 border-teal-200";
       default:
         return "bg-slate-50 text-slate-600 border-slate-200";
     }
@@ -128,7 +141,7 @@ export default function MyOrders() {
               <div className="flex justify-between items-start">
                 <span className="text-sm text-slate-500">Order ID</span>
                 <span className="text-sm font-mono text-slate-700 text-right max-w-[200px] break-all">
-                  {order.razorpayOrderId}
+                  {order.razorpayOrderId || `#${order._id?.slice(-12).toUpperCase()}`}
                 </span>
               </div>
 
@@ -160,7 +173,7 @@ export default function MyOrders() {
                   className="text-lg font-bold"
                   style={{ color: "#008080" }}
                 >
-                  ₹{(order.totalAmount / 100).toFixed(2)}
+                  ₹{formatOrderTotal(order)}
                 </span>
               </div>
             </div>
@@ -297,7 +310,7 @@ export default function MyOrders() {
                           className="text-lg font-bold"
                           style={{ color: "#008080" }}
                         >
-                          ₹{(o.totalAmount / 100).toFixed(2)}
+                          ₹{formatOrderTotal(o)}
                         </p>
                       </div>
                       <button
@@ -359,6 +372,12 @@ export default function MyOrders() {
                       Total
                     </th>
                     <th
+                      className="px-4 sm:px-6 py-4 text-right text-xs sm:text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: "#003366" }}
+                    >
+                      Discount
+                    </th>
+                    <th
                       className="px-4 sm:px-6 py-4 text-center text-xs sm:text-sm font-semibold uppercase tracking-wider"
                       style={{ color: "#003366" }}
                     >
@@ -384,8 +403,8 @@ export default function MyOrders() {
                           className="px-4 sm:px-6 py-4 font-mono text-xs sm:text-sm"
                           style={{ color: "#334155" }}
                         >
-                          <span className="truncate block max-w-[100px] sm:max-w-none">
-                            {o.razorpayOrderId}
+                          <span className="truncate block max-w-[120px] sm:max-w-none">
+                            {o.razorpayOrderId || o._id?.slice(-12).toUpperCase()}
                           </span>
                         </td>
                         <td
@@ -411,7 +430,15 @@ export default function MyOrders() {
                           className="px-4 sm:px-6 py-4 text-right font-bold text-base"
                           style={{ color: "#008080" }}
                         >
-                          ₹{(o.totalAmount / 100).toFixed(2)}
+                          ₹{formatOrderTotal(o)}
+                        </td>
+                        <td
+                          className="px-4 sm:px-6 py-4 text-right text-sm"
+                          style={{ color: "#2ecc71" }}
+                        >
+                          {o.couponApplied?.discountPercentage
+                            ? `-${o.couponApplied.discountPercentage}%`
+                            : "-"}
                         </td>
                         <td className="px-4 sm:px-6 py-4 text-center">
                           <button
@@ -434,7 +461,7 @@ export default function MyOrders() {
                   ) : (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="6"
                         className="text-center py-12 text-slate-400 italic text-sm"
                       >
                         No orders found.

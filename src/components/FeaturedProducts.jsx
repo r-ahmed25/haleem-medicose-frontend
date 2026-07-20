@@ -4,7 +4,7 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "../styles/FeaturedProducts.css";
 import toast from "react-hot-toast";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "../hooks/useAuthStore";
@@ -60,49 +60,43 @@ const ProductCard = ({ product }) => {
   const [realTimeStock, setRealTimeStock] = useState(product.stock);
   const [isLoadingStock, setIsLoadingStock] = useState(false);
 
-  // Function to resolve product image (handles both array and single image)
-  const resolveProductImage = (product) => {
-    // Debug logging to understand image structure
-    console.log("FeaturedProducts - Product images:", product.images);
-    console.log("FeaturedProducts - Product image:", product.image);
-    console.log("FeaturedProducts - Product thumbnail:", product.thumbnail);
+  const images = product.images?.length
+    ? product.images
+    : product.image
+      ? [{ url: product.image, isPrimary: true }]
+      : [];
+  const [activeIndex, setActiveIndex] = useState(
+    images.findIndex((img) => img.isPrimary) >= 0
+      ? images.findIndex((img) => img.isPrimary)
+      : 0
+  );
 
-    // 1. New products (Cloudinary) - Check for images array
+  useEffect(() => {
+    const primaryIndex = images.findIndex((img) => img.isPrimary);
+    setActiveIndex(primaryIndex >= 0 ? primaryIndex : 0);
+  }, [product._id, images.length]);
+
+  const nextImage = () => setActiveIndex((i) => (i + 1) % images.length);
+  const prevImage = () => setActiveIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+
+  const resolveProductImage = (product) => {
     if (Array.isArray(product.images) && product.images.length > 0) {
-      console.log(
-        "FeaturedProducts - Processing images array:",
-        product.images
-      );
       const primary = product.images.find((i) => i.isPrimary);
       const candidate = primary || product.images[0];
-      console.log("FeaturedProducts - Primary image:", primary);
-      console.log("FeaturedProducts - Candidate image:", candidate);
-
-      if (candidate?.url) {
-        console.log("FeaturedProducts - Using URL:", candidate.url);
-        return candidate.url;
-      }
-      if (candidate?.data) {
-        console.log("FeaturedProducts - Using data URL");
-        return candidate.data;
-      }
+      if (candidate?.url) return candidate.url;
+      if (candidate?.data) return candidate.data;
     }
-
-    // 2. Old products - Check image field first, then thumbnail
-    if (product.image) {
-      console.log("FeaturedProducts - Using legacy image field");
-      return product.image;
-    }
-
-    if (product.thumbnail) {
-      console.log("FeaturedProducts - Using legacy thumbnail field");
-      return product.thumbnail;
-    }
-
-    // 3. Absolute safe fallback (inline SVG, never breaks)
-    console.log("FeaturedProducts - Using fallback image");
+    if (product.image) return product.image;
+    if (product.thumbnail) return product.thumbnail;
     return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==";
   };
+
+  // Sync local stock state when product prop changes (store refresh from another tab/sale)
+  useEffect(() => {
+    if (product.stock !== undefined) {
+      setRealTimeStock((prev) => (prev !== product.stock ? product.stock : prev));
+    }
+  }, [product.stock]);
 
   // Fetch real-time stock on mount, periodically, and when refresh is triggered
   useEffect(() => {
@@ -164,7 +158,7 @@ const ProductCard = ({ product }) => {
       <div className="relative mx-3 mt-3 h-40 overflow-hidden rounded-lg bg-mute-700/40 flex items-center justify-center p-2">
         {/* image uses object-contain and centered to show full product */}
         <img
-          src={resolveProductImage(product)}
+          src={images[activeIndex]?.url || resolveProductImage(product)}
           alt={product.name || "product image"}
           className="max-h-full max-w-full object-contain object-center"
           onError={(e) => {
@@ -175,6 +169,47 @@ const ProductCard = ({ product }) => {
             }
           }}
         />
+
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow hover:bg-white"
+              onClick={(e) => {
+                e.preventDefault();
+                prevImage();
+              }}
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow hover:bg-white"
+              onClick={(e) => {
+                e.preventDefault();
+                nextImage();
+              }}
+              aria-label="Next image"
+            >
+              <ChevronRight size={16} />
+            </button>
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+              {images.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`h-1.5 w-1.5 rounded-full transition-all ${
+                    idx === activeIndex ? "bg-white w-3" : "bg-white/60"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveIndex(idx);
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
 
