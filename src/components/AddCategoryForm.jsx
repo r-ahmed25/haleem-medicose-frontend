@@ -3,12 +3,14 @@ import { motion } from "framer-motion";
 import { PlusCircle, Loader, Tag } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../lib/axios";
+import { useProductStore } from "../hooks/useProductStore";
 
 const AddCategoryForm = () => {
   const [newCategory, setNewCategory] = useState({
     name: "",
   });
   const [loading, setLoading] = useState(false);
+  const fetchCategories = useProductStore((state) => state.fetchCategories);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +26,7 @@ const AddCategoryForm = () => {
       if (res.status >= 200 && res.status < 300) {
         toast.success(res.data.message || "Category added successfully");
         setNewCategory({ name: "" });
+        fetchCategories();
       } else {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }

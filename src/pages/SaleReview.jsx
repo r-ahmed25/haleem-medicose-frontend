@@ -87,6 +87,11 @@ const SaleReview = () => {
         clearCart();
         clearDirectDiscount();
 
+        // Refresh admin alerts in case stock dropped below threshold
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("refresh-admin-alerts"));
+        }
+
         // Navigate to SaleComplete with order data
         navigate("/sale-complete", {
           state: {

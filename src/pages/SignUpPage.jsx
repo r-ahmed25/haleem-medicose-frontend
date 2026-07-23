@@ -13,18 +13,23 @@ const SignUpPage = () => {
   });
 
   const navigate = useNavigate();
-  const { signup, loading, isAuthenticated } = useAuthStore();
+  const { signup, loading, isAuthenticated, user } = useAuthStore();
 
-  // Redirect to home page after successful signup
+  const getRedirectPath = () => {
+    if (user?.role === "admin") return "/dashboard";
+    return "/";
+  };
+
+  // Redirect after successful signup
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate(getRedirectPath());
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
-  // Redirect authenticated users to home page
+  // Redirect authenticated users away from signup
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={getRedirectPath()} replace />;
   }
 
   const handleSubmit = (e) => {

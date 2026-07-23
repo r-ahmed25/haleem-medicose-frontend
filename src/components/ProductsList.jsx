@@ -13,17 +13,6 @@ import {
 import formatCurrency from "../lib/formatCurrency";
 import { useProductStore } from "../hooks/useProductStore";
 
-const categories = [
-  "Vaccines",
-  "Anti-Allergens",
-  "Antihistamines",
-  "Antibiotics",
-  "Blood Pressure Medicines",
-  "Cough Syrup",
-  "PainKiller",
-  "Diabetes Medicines",
-];
-
 const ProductsList = () => {
   const {
     deleteProduct,
@@ -31,6 +20,8 @@ const ProductsList = () => {
     updateProduct,
     products,
     loading,
+    categories,
+    fetchCategories,
   } = useProductStore();
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -42,6 +33,12 @@ const ProductsList = () => {
     category: "",
     stock: "",
     image: "",
+    minStockLevel: "5",
+    expiryDate: "",
+    batchNumber: "",
+    manufacturer: "",
+    composition: "",
+    prescriptionRequired: false,
   });
 
   // Function to resolve product image (handles both array and single image)
@@ -65,8 +62,13 @@ const ProductsList = () => {
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleEditClick = (product) => {
     setEditingProduct(product._id);
@@ -78,6 +80,12 @@ const ProductsList = () => {
       category: product.category || "",
       stock: product.stock?.toString() || "0",
       image: product.image || "",
+      minStockLevel: product.minStockLevel?.toString() || "5",
+      expiryDate: product.expiryDate ? new Date(product.expiryDate).toISOString().split("T")[0] : "",
+      batchNumber: product.batchNumber || "",
+      manufacturer: product.manufacturer || "",
+      composition: product.composition || "",
+      prescriptionRequired: product.prescriptionRequired || false,
     });
   };
 
@@ -90,6 +98,12 @@ const ProductsList = () => {
       category: "",
       stock: "",
       image: "",
+      minStockLevel: "5",
+      expiryDate: "",
+      batchNumber: "",
+      manufacturer: "",
+      composition: "",
+      prescriptionRequired: false,
     });
   };
 
@@ -99,6 +113,12 @@ const ProductsList = () => {
         ...editForm,
         price: parseFloat(editForm.price),
         stock: parseInt(editForm.stock, 10),
+        minStockLevel: parseInt(editForm.minStockLevel, 10) || 5,
+        expiryDate: editForm.expiryDate || undefined,
+        batchNumber: editForm.batchNumber,
+        manufacturer: editForm.manufacturer,
+        composition: editForm.composition,
+        prescriptionRequired: editForm.prescriptionRequired,
       });
       setEditingProduct(null);
     } catch (error) {
@@ -431,11 +451,107 @@ const ProductsList = () => {
               >
                 <option value="">Select a category</option>
                 {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                  <option key={category._id || category.name} value={category.name}>
+                    {category.name}
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Min Stock Level */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Min Stock Level
+              </label>
+              <input
+                type="number"
+                value={editForm.minStockLevel}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, minStockLevel: e.target.value })
+                }
+                min="0"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                placeholder="5"
+              />
+            </div>
+
+            {/* Expiry Date & Batch Number */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiry Date
+                </label>
+                <input
+                  type="date"
+                  value={editForm.expiryDate}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, expiryDate: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Batch Number
+                </label>
+                <input
+                  type="text"
+                  value={editForm.batchNumber}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, batchNumber: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  placeholder="Batch #"
+                />
+              </div>
+            </div>
+
+            {/* Manufacturer & Composition */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Manufacturer
+                </label>
+                <input
+                  type="text"
+                  value={editForm.manufacturer}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, manufacturer: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  placeholder="Manufacturer"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Composition
+                </label>
+                <input
+                  type="text"
+                  value={editForm.composition}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, composition: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  placeholder="e.g. Paracetamol 500mg"
+                />
+              </div>
+            </div>
+
+            {/* Prescription Required */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="edit-prescriptionRequired"
+                checked={editForm.prescriptionRequired}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, prescriptionRequired: e.target.checked })
+                }
+                className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+              />
+              <label htmlFor="edit-prescriptionRequired" className="text-sm font-medium text-gray-700">
+                Prescription Required
+              </label>
             </div>
 
             {/* Image Upload */}

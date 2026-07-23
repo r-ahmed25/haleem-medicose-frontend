@@ -10,15 +10,20 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const navigated = useRef(false);
 
-  const { login, isAuthenticated, loading } = useAuthStore();
+  const { login, isAuthenticated, loading, user } = useAuthStore();
 
-  // Redirect to home page after successful login
+  const getRedirectPath = () => {
+    if (user?.role === "admin") return "/dashboard";
+    return "/";
+  };
+
+  // Redirect after successful login
   useEffect(() => {
     if (isAuthenticated && !navigated.current) {
       navigated.current = true;
-      navigate("/");
+      navigate(getRedirectPath());
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

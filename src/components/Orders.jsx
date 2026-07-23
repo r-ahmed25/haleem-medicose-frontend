@@ -181,7 +181,7 @@ export default function Orders() {
                   className="text-lg font-bold"
                   style={{ color: "#008080" }}
                 >
-                  ₹{(order.totalAmount / 100).toFixed(2)}
+                  ₹{(order.totalAmount / (order.razorpayPaymentId ? 100 : 1)).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function Orders() {
                         className="text-lg font-bold"
                         style={{ color: "#008080" }}
                       >
-                        ₹{(o.totalAmount / 100).toFixed(2)}
+                        ₹{(o.totalAmount / (o.razorpayPaymentId ? 100 : 1)).toFixed(2)}
                       </p>
                     </div>
                     <span
@@ -471,7 +471,7 @@ export default function Orders() {
                       className="px-4 sm:px-6 py-4 text-right font-bold text-base"
                       style={{ color: "#008080" }}
                     >
-                      ₹{(o.totalAmount / 100).toFixed(2)}
+                      ₹{(o.totalAmount / (o.razorpayPaymentId ? 100 : 1)).toFixed(2)}
                     </td>
                     <td className="px-4 sm:px-6 py-4 text-center">
                       <button

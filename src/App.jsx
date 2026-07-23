@@ -38,6 +38,8 @@ function App() {
   const fetchAllProducts = useProductStore((state) => state.fetchAllProducts);
   const fetchCategories = useProductStore((state) => state.fetchCategories);
 
+  const getAdminRedirect = () => (user?.role === "admin" ? "/dashboard" : "/");
+
   useEffect(() => {
     if (!authChecked.current) {
       checkAuth();
@@ -97,8 +99,8 @@ function App() {
         {/* ✅ Redirect logged-in users away from login/signup */}
         {isAuthenticated && (
           <>
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="/signup" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Navigate to={getAdminRedirect()} replace />} />
+            <Route path="/signup" element={<Navigate to={getAdminRedirect()} replace />} />
           </>
         )}
 
@@ -107,7 +109,7 @@ function App() {
           path="*"
           element={
             isAuthenticated ? (
-              <Navigate to="/" replace />
+              <Navigate to={getAdminRedirect()} replace />
             ) : (
               <Navigate to="/login" replace />
             )

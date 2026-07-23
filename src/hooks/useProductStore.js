@@ -13,47 +13,71 @@ export const useProductStore = create((set, get) => ({
     set({ products: Array.isArray(products) ? products : [] }),
   setCategories: (categories) =>
     set({ categories: Array.isArray(categories) ? categories : [] }),
- createProduct: async (productData) => {
+  createProduct: async (productData) => {
     set({ loading: true });
-    try {
-      const res = await api.post("/products/addproduct", productData);
+    const maxRetries = 3;
+    const baseDelay = 1000;
 
-      if (res.status >= 200 && res.status < 300) {
-        set((prevState) => {
-          const currentProducts = Array.isArray(prevState.products)
-            ? prevState.products
-            : [];
-          return {
-            products: [...currentProducts, res.data.product],
-            loading: false,
-          };
-        });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await api.post("/products/addproduct", productData);
 
-        toast.success(res.data.message || "Product created successfully");
-        return res.data;
-      } else {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        if (res.status >= 200 && res.status < 300) {
+          set((prevState) => {
+            const currentProducts = Array.isArray(prevState.products)
+              ? prevState.products
+              : [];
+            return {
+              products: [...currentProducts, res.data.product],
+              loading: false,
+            };
+          });
+
+          toast.success(res.data.message || "Product created successfully");
+          get().refreshAdminAlerts();
+          return res.data;
+        } else {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+      } catch (error) {
+        console.error(`Error in createProduct (attempt ${attempt}):`, error);
+
+        const isNetworkError =
+          !error.response ||
+          error.code === "ECONNABORTED" ||
+          error.message.includes("timeout") ||
+          error.message.includes("Network Error");
+
+        if (isNetworkError && attempt < maxRetries) {
+          const delay = baseDelay * Math.pow(2, attempt - 1);
+          toast.error(
+            `Network issue. Retrying in ${delay / 1000}s... (${attempt}/${maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+
+        set({ loading: false });
+
+        if (error.response) {
+          console.error("Server error:", error.response.data);
+          toast.error(
+            error.response.data?.error ||
+              error.response.data?.message ||
+              "Server error occurred"
+          );
+        } else if (error.request) {
+          console.error("Network error:", error.request);
+          toast.error(
+            "Network error - please check your connection and try again"
+          );
+        } else {
+          console.error("Other error:", error.message);
+          toast.error(error.message || "An unexpected error occurred");
+        }
+
+        throw error;
       }
-    } catch (error) {
-      console.error("Error in createProduct:", error);
-      set({ loading: false });
-
-      if (error.response) {
-        console.error("Server error:", error.response.data);
-        toast.error(
-          error.response.data?.error ||
-            error.response.data?.message ||
-            "Server error occurred"
-        );
-      } else if (error.request) {
-        console.error("Network error:", error.request);
-        toast.error("Network error - please check your connection");
-      } else {
-        console.error("Other error:", error.message);
-        toast.error(error.message || "An unexpected error occurred");
-      }
-
-      throw error;
     }
   },
   fetchAllProducts: async () => {
@@ -97,6 +121,7 @@ export const useProductStore = create((set, get) => ({
         };
       });
       toast.success("Product deleted successfully");
+      get().refreshAdminAlerts();
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.error || "Failed to delete product");
@@ -119,6 +144,8 @@ export const useProductStore = create((set, get) => ({
           loading: false,
         };
       });
+      toast.success("Product featured status updated");
+      get().refreshAdminAlerts();
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.error || "Failed to update product");
@@ -153,6 +180,7 @@ export const useProductStore = create((set, get) => ({
           ? "Product updated successfully on mobile!"
           : "Product updated successfully"
       );
+      get().refreshAdminAlerts();
       return response.data;
     } catch (error) {
       set({ loading: false });
@@ -203,6 +231,68 @@ export const useProductStore = create((set, get) => ({
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("Failed to fetch categories");
+    }
+  },
+  refreshAdminAlerts: () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("refresh-admin-alerts"));
+    }
+  },
+  addCategory: async (name) => {
+    try {
+      const res = await api.post("/categories/add", { name });
+      if (res.data?.success) {
+        get().fetchCategories();
+        toast.success(res.data.message || "Category added successfully");
+        return res.data;
+      }
+      throw new Error(res.data?.message || "Failed to add category");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to add category";
+      toast.error(message);
+      throw error;
+    }
+  },
+  updateCategory: async (id, name) => {
+    try {
+      const res = await api.put(`/categories/${id}`, { name });
+      if (res.data?.success) {
+        get().fetchCategories();
+        toast.success(res.data.message || "Category updated successfully");
+        return res.data;
+      }
+      throw new Error(res.data?.message || "Failed to update category");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to update category";
+      toast.error(message);
+      throw error;
+    }
+  },
+  deleteCategory: async (id) => {
+    try {
+      const res = await api.delete(`/categories/${id}`);
+      if (res.data?.success) {
+        get().fetchCategories();
+        toast.success(res.data.message || "Category deleted successfully");
+        return res.data;
+      }
+      throw new Error(res.data?.message || "Failed to delete category");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to delete category";
+      toast.error(message);
+      throw error;
     }
   },
 }));

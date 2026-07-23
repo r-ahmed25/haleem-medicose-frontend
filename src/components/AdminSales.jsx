@@ -14,6 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import OrderTracking from "./OrderTracking";
 
 const PERIODS = [
   { id: "day", label: "Day" },
@@ -40,6 +41,7 @@ export default function AdminSales() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
   const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Helper to format INR
   const fmt = (n) =>
@@ -490,6 +492,7 @@ export default function AdminSales() {
                       <th className="text-left px-4 py-3 font-bold" style={{ color: "var(--accent)" }}>Items</th>
                       <th className="text-right px-4 py-3 font-bold" style={{ color: "var(--accent)" }}>Amount</th>
                       <th className="text-center px-4 py-3 font-bold" style={{ color: "var(--accent)" }}>Payment</th>
+                      <th className="text-center px-4 py-3 font-bold" style={{ color: "var(--accent)" }}>Status</th>
                       <th className="text-center px-4 py-3 font-bold" style={{ color: "var(--accent)" }}>Date</th>
                     </tr>
                   </thead>
@@ -529,7 +532,7 @@ export default function AdminSales() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold cursor-pointer ${
                               order.razorpayPaymentId
                                 ? "bg-blue-50 text-blue-700 border border-blue-200"
                                 : "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -537,6 +540,14 @@ export default function AdminSales() {
                           >
                             {order.razorpayPaymentId ? "Online" : "Cash"}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="text-xs font-semibold px-2 py-1 rounded bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors"
+                          >
+                            {order.status || "pending"}
+                          </button>
                         </td>
                         <td className="px-4 py-3 text-center text-gray-500 text-xs">
                           {new Date(order.createdAt).toLocaleDateString("en-IN", {
@@ -568,6 +579,44 @@ export default function AdminSales() {
             className="w-10 h-10 animate-spin"
             style={{ color: "var(--primary)" }}
           />
+        </div>
+      )}
+
+      {/* Order Tracking Modal */}
+      {selectedOrder && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold" style={{ color: "var(--primary)" }}>
+                Order Tracking - #{selectedOrder._id.slice(-8).toUpperCase()}
+              </h3>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                &times;
+              </button>
+            </div>
+            <OrderTracking
+              order={selectedOrder}
+              onStatusUpdate={async (newStatus) => {
+                try {
+                  await axios.put(`/api/orders/${selectedOrder._id}/status`, { status: newStatus });
+                  toast.success(`Order status updated to ${newStatus}`);
+                  setSelectedOrder({ ...selectedOrder, status: newStatus });
+                  fetchReport();
+                } catch (err) {
+                  toast.error("Failed to update order status");
+                }
+              }}
+            />
+          </div>
         </div>
       )}
 

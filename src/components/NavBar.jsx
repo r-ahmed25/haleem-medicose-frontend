@@ -26,6 +26,7 @@ import { useCartStore } from "../hooks/useCartStore";
 import { formatLocation } from "../utils/locationFormatter";
 import PrescriptionUploadForm from "./PrescriptionUploadForm"; // 👈 add this
 import SearchSuggestions from "./SearchSuggestions";
+import SalesInfo from "./SalesInfo";
 import "../styles/NavBar.css";
 
 const LOCATION_KEY = "hm_location";
@@ -217,28 +218,32 @@ export default function NavBar() {
                 <FaUser />
               </button>
 
-              <div
-                className="deliver-to"
-                onClick={() => navigate("/location")}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && navigate("/location")}
-                title="Change delivery location"
-              >
-                <div className="deliver-label">Deliver to</div>
-                <div className="deliver-address">
-                  {isDetecting
-                    ? "Detecting..."
-                    : locationObj
-                    ? formatLocation(locationObj, isMobile)
-                    : "Set location"}
-                  <span className="chev">›</span>
+              {user?.role === "customer" ? (
+                <div
+                  className="deliver-to"
+                  onClick={() => navigate("/location")}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && navigate("/location")}
+                  title="Change delivery location"
+                >
+                  <div className="deliver-label">Deliver to</div>
+                  <div className="deliver-address">
+                    {isDetecting
+                      ? "Detecting..."
+                      : locationObj
+                      ? formatLocation(locationObj, isMobile)
+                      : "Set location"}
+                    <span className="chev">›</span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <SalesInfo />
+              )}
             </div>
 
             <div className="nav-right-top">
-              {user && user?.role !== "admin" && (
+              {user?.role !== "admin" && (
                 <Link
                   to={"/cart"}
                   className="relative group text-white/90 hover:text-emerald-400 transition duration-300 px-2 py-1 rounded-md hover:bg-white/5 flex items-center gap-1 min-w-0"
@@ -408,7 +413,7 @@ export default function NavBar() {
                     visible: { opacity: 1, x: 0 },
                   }}
                 >
-                  {user?.role !== "admin" && (
+                  {user?.role === "customer" && (
                     <Link
                       to="/orders"
                       onClick={() => setMenuOpen(false)}
@@ -425,7 +430,7 @@ export default function NavBar() {
                     visible: { opacity: 1, x: 0 },
                   }}
                 >
-                  {user?.role !== "admin" && (
+                  {user?.role === "customer" && (
                     <Link
                       to="/prescriptions"
                       onClick={() => setMenuOpen(false)}
@@ -442,7 +447,7 @@ export default function NavBar() {
                     visible: { opacity: 1, x: 0 },
                   }}
                 >
-                  {user?.role !== "admin" && (
+                  {user?.role === "customer" && (
                     <Link
                       to="/contact"
                       onClick={() => setMenuOpen(false)}

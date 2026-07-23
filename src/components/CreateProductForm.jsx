@@ -24,6 +24,12 @@ const CreateProductForm = () => {
     category: "",
     images: [],
     stock: "0",
+    minStockLevel: "5",
+    expiryDate: "",
+    batchNumber: "",
+    manufacturer: "",
+    composition: "",
+    prescriptionRequired: false,
   });
 
   const { createProduct, loading, categories, fetchCategories } =
@@ -174,6 +180,77 @@ const CreateProductForm = () => {
               }
               required
             />
+          </div>
+
+          {/* Min Stock Level */}
+          <input
+            type="number"
+            className="w-full p-3 rounded-xl bg-white/10 text-white"
+            placeholder="Min Stock Level (for low stock alerts)"
+            value={newProduct.minStockLevel || 5}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, minStockLevel: e.target.value })
+            }
+          />
+
+          {/* Expiry Date & Batch Number */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="date"
+              className="p-3 rounded-xl bg-white/10 text-white"
+              placeholder="Expiry Date"
+              value={newProduct.expiryDate || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, expiryDate: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              className="p-3 rounded-xl bg-white/10 text-white"
+              placeholder="Batch Number"
+              value={newProduct.batchNumber || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, batchNumber: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Manufacturer & Composition */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              className="p-3 rounded-xl bg-white/10 text-white"
+              placeholder="Manufacturer"
+              value={newProduct.manufacturer || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, manufacturer: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              className="p-3 rounded-xl bg-white/10 text-white"
+              placeholder="Composition (e.g., Paracetamol 500mg)"
+              value={newProduct.composition || ""}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, composition: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Prescription Required */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="prescriptionRequired"
+              checked={newProduct.prescriptionRequired || false}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, prescriptionRequired: e.target.checked })
+              }
+              className="h-4 w-4 rounded"
+            />
+            <label htmlFor="prescriptionRequired" className="text-white text-sm">
+              Prescription Required
+            </label>
           </div>
 
           {/* Category */}

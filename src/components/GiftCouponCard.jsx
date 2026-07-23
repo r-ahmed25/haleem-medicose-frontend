@@ -84,9 +84,16 @@ const GiftCouponCard = () => {
       const percent = parseFloat(value);
       if (!isNaN(percent) && percent > 0 && percent <= 100) {
         setDirectDiscount(percent);
+        useCartStore.getState().calculateTotals();
       }
     }
   };
+
+  useEffect(() => {
+    if (!isDirectDiscountApplied) {
+      setDirectPercent("10");
+    }
+  }, [isDirectDiscountApplied]);
 
   return (
     <motion.div

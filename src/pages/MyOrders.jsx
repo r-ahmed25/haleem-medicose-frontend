@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../lib/axios";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../components/LoadingSpinner";
+import OrderTracking from "../components/OrderTracking";
 import {
   downloadAuthenticatedFile,
   generateInvoiceFilename,
@@ -167,6 +168,13 @@ export default function MyOrders() {
                 </span>
               </div>
 
+              <div className="pt-4 border-t border-teal-100">
+                <h3 className="text-sm font-semibold mb-3" style={{ color: "#003366" }}>
+                  Order Tracking
+                </h3>
+                <OrderTracking order={order} />
+              </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-500">Total</span>
                 <span
@@ -249,8 +257,14 @@ export default function MyOrders() {
               }}
             >
               <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
               <option value="processing">Processing</option>
+              <option value="packed">Packed</option>
+              <option value="shipped">Shipped</option>
+              <option value="out_for_delivery">Out for Delivery</option>
               <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
 

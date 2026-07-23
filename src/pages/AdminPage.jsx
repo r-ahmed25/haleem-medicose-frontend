@@ -5,26 +5,30 @@ import {
   ClipboardList,
   FolderPlus,
   DollarSign,
+  Users,
 } from "lucide-react";
 import { LiaPrescriptionSolid } from "react-icons/lia";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 import AnalyticsTab from "../components/AnalyticsTab";
 import CreateProductForm from "../components/CreateProductForm";
 import ProductsList from "../components/ProductsList";
 import Orders from "../components/Orders";
-import AddCategoryForm from "../components/AddCategoryForm";
+import CategoryDialog from "../components/CategoryDialog";
 import AdminSales from "../components/AdminSales";
+import UserManagement from "../components/UserManagement";
 import { useProductStore } from "../hooks/useProductStore";
 import AdminPrescriptions from "./AdminPrescriptions";
+import AdminAlerts from "../components/AdminAlerts";
 
 const tabs = [
   { id: "create", label: "Create Product", icon: PlusCircle },
-  { id: "add-category", label: "Add Category", icon: FolderPlus },
+  { id: "add-category", label: "Categories", icon: FolderPlus },
+  { id: "users", label: "Users", icon: Users },
   { id: "products", label: "Products", icon: ShoppingBasket },
-  { id: "orders", label: "Orders", icon: ClipboardList }, // ✅ NEW TAB
+  { id: "orders", label: "Orders", icon: ClipboardList },
   { id: "analytics", label: "Analytics", icon: BarChart },
   { id: "sales", label: "Sales", icon: DollarSign },
   {
@@ -36,7 +40,17 @@ const tabs = [
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("create");
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const { fetchAllProducts } = useProductStore();
+
+  const handleCategoryClick = useCallback(() => {
+    setActiveTab("add-category");
+    setIsCategoryDialogOpen(true);
+  }, []);
+
+  const handleCloseDialog = useCallback(() => {
+    setIsCategoryDialogOpen(false);
+  }, []);
 
   useEffect(() => {
     fetchAllProducts();
@@ -67,7 +81,13 @@ export default function AdminPage() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    if (tab.id === "add-category") {
+                      handleCategoryClick();
+                    } else {
+                      setActiveTab(tab.id);
+                    }
+                  }}
                   className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-all duration-200 justify-start text-sm font-medium ml-2 mr-2 ${
                     active
                       ? "text-white shadow-lg transform scale-100"
@@ -116,7 +136,13 @@ export default function AdminPage() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => {
+                        if (tab.id === "add-category") {
+                          handleCategoryClick();
+                        } else {
+                          setActiveTab(tab.id);
+                        }
+                      }}
                       className={`flex-shrink-0 snap-start flex items-center gap-2 px-3 py-2 rounded-md whitespace-nowrap text-sm font-medium transition-colors ${
                         active ? "text-white" : "bg-gray-200 text-gray-900"
                       }`}
@@ -157,6 +183,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 min-h-[40vh] max-w-full overflow-visible">
               {/* Wrap tab content with responsive helpers so child components don't overflow on small screens */}
               <div className="w-full max-w-full overflow-auto">
+                <AdminAlerts />
                 <div className="w-full max-w-full">
                   {activeTab === "create" && (
                     <div className="w-full max-w-full">
@@ -166,7 +193,23 @@ export default function AdminPage() {
 
                   {activeTab === "add-category" && (
                     <div className="w-full max-w-full">
-                      <AddCategoryForm />
+                      <div className="text-center py-10 text-gray-500">
+                        <FolderPlus className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <p className="text-lg font-medium">Manage Categories</p>
+                        <p className="text-sm">Click the button below to open the category manager</p>
+                        <button
+                          onClick={() => setIsCategoryDialogOpen(true)}
+                          className="mt-4 px-6 py-2.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors shadow-lg"
+                        >
+                          Open Category Manager
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "users" && (
+                    <div className="w-full max-w-full">
+                      <UserManagement />
                     </div>
                   )}
 
@@ -208,6 +251,11 @@ export default function AdminPage() {
               Tip: use sidebar to quickly switch tabs.
             </div>
           </div>
+
+          <CategoryDialog
+            isOpen={isCategoryDialogOpen}
+            onClose={handleCloseDialog}
+          />
         </main>
       </div>
     </div>

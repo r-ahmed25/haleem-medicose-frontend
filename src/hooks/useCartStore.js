@@ -218,6 +218,9 @@ export const useCartStore = create((set, get) => ({
     }
     try {
       await api.delete("/cart/clear");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("refresh-admin-alerts"));
+      }
     } catch (error) {
       console.error("Error clearing cart:", error);
       if (!optimistic) {
